@@ -1,23 +1,35 @@
-# ProtMixy: Protein Evolution via MSA-Transformer
+# ProtMixy: Mutational Pathway via MSA-Transformer to Generate Hybrid Protein Sequences
 
-A computational framework for generating evolutionary paths between protein sequences using MSA-Transformer with beam search and simulated annealing.
+A computational framework for generating biologically plausible mutational pathways between protein sequences, enabling the design of hybrid proteins through MSA-Transformer-guided sequence space exploration.
 
 ## Overview
 
-ProtMixy implements two novel methods for guided protein sequence evolution:
+ProtMixy generates step-by-step mutational pathways that connect two protein sequences, producing hybrid intermediates that maintain biological plausibility. The framework leverages MSA-Transformer's understanding of sequence context and co-evolutionary patterns to guide mutations.
 
-1. **IRS (Iterative Refinement Sampling)**: Uses cosine distance-based position sampling to iteratively refine sequences toward a target
-2. **APC (Attention-based Positional Coupling)**: Leverages attention weights from MSA-Transformer to sample coupled positions, capturing co-evolutionary relationships
+### Two Pathway Generation Methods
 
-Both methods use beam search with simulated annealing to explore the sequence space between starting and ending protein sequences while maintaining biological plausibility through MSA context.
+1. **IRS (Iterative Refinement Sampling)**: Position-independent sampling based on embedding distance
+   - Samples positions with high cosine distance to target
+   - Prioritizes high-entropy positions for mutation
+   - Efficient for sequences with distributed differences
+
+2. **APC (Attention-based Positional Coupling)**: Co-evolutionary position sampling
+   - Uses MSA-Transformer attention weights to identify coupled positions
+   - Samples spatially related positions together
+   - Captures epistatic interactions and structural constraints
+   - Applies Average Product Correction (APC) to attention matrices
+
+Both methods employ beam search with simulated annealing to maintain multiple pathway candidates and ensure smooth transitions through sequence space.
 
 ## Key Features
 
-- **Beam Search**: Maintains multiple candidate paths simultaneously (default: 3 beams)
-- **Simulated Annealing**: Temperature-based acceptance criterion for exploring sequence space
-- **Context-Aware**: Uses MSA context to ensure biologically plausible mutations
-- **Convergence Tracking**: Monitors distance to target and stops when threshold is reached
-- **Path Validation**: Comprehensive consistency checks on generated evolutionary paths
+- **Hybrid Protein Design**: Generate intermediate sequences between any two proteins
+- **Biologically Plausible Pathways**: MSA context ensures mutations respect natural variation
+- **Beam Search**: Explores multiple pathway candidates simultaneously (default: 3 beams)
+- **Simulated Annealing**: Temperature-based acceptance for smooth sequence transitions
+- **Co-evolutionary Awareness**: APC method captures epistatic interactions
+- **Convergence Tracking**: Monitors embedding distance and stops when target is reached
+- **Path Validation**: Comprehensive consistency checks on generated pathways
 
 ## Installation
 
@@ -49,16 +61,15 @@ protmixy/
 ├── config/              # Configuration files
 │   └── settings.py      # Hyperparameters and paths
 ├── src/                 # Core source code
-│   ├── protein_evolver.py    # Main evolution algorithm
-│   ├── evolution_utils.py    # Helper functions
+│   ├── msat_beam_evolver.py  # Main pathway generation algorithm
 │   └── utils/                # Utility modules
 │       ├── model_loader.py   # MSA-Transformer model loader
 │       ├── evaluator.py      # Sequence evaluation
-│       ├── helpers.py        # General utilities
+│       ├── helpers.py        # Pathway generation utilities
 │       └── msa_output.py     # MSA processing
 ├── scripts/             # Executable scripts
-│   └── generate_pathway.py # Main entry point
-├── data/                # Data directory (create subdirectories as needed)
+│   └── generate_pathway.py  # Main entry point
+├── data/                # Data directory (MSA files, sequences)
 ├── docs/                # Documentation
 ├── requirements.txt     # Python dependencies
 └── README.md           # This file
@@ -102,18 +113,18 @@ python scripts/generate_pathway.py \
 Edit `config/settings.py` to customize:
 
 - **Protein family**: Set `PROTEIN_FAMILY` (e.g., 'lac', 'kari', 'pla2g2')
-- **Evolution method**: Choose `GENERATOR_METHOD` ('irs' or 'apc')
+- **Pathway method**: Choose `GENERATOR_METHOD` ('irs' or 'apc')
 - **Beam parameters**: Adjust `N_BEAM`, `N_TOSS`, `N_CANDIDATES`
 - **Annealing schedule**: Modify `ANNEAL_TEMP`, `TEMP_DECAY`
-- **Model selection**: Change `GENERATOR_MODEL_NAME` or `ESM2_MODEL_NAME`
+- **Model selection**: Change `GENERATOR_MODEL_NAME`
 
 ## Output Files
 
-The algorithm generates several output files in the specified output directory:
+The pathway generation produces several output files:
 
-1. **`beam_evol_msat_history_{seed}.pkl`**: Complete path history with all candidates
-2. **`beam_evol_msat_intermediate_seqs_{seed}.fasta`**: All accepted intermediate sequences
-3. **`beam_evol_path_{idx}_{seed}.fasta`**: Individual evolutionary paths (one per converged candidate)
+1. **`beam_evol_msat_history_{seed}.pkl`**: Complete pathway history with all candidates and metadata
+2. **`beam_evol_msat_intermediate_seqs_{seed}.fasta`**: All accepted hybrid intermediate sequences
+3. **`beam_evol_path_{idx}_{seed}.fasta`**: Individual mutational pathways (one per converged beam)
 
 ## Methods
 
@@ -133,56 +144,26 @@ The algorithm generates several output files in the specified output directory:
 ## Algorithm Overview
 
 1. **Initialization**: Start with source sequence in MSA context
-2. **Iteration Loop**:
-   - For each beam:
-     - Generate mask based on distance/attention
-     - Sample multiple candidates from MSA-Transformer
-     - Evaluate candidates using ESM2 embeddings
+2. **Iterative Pathway Generation**:
+   - For each beam candidate:
+     - Generate position mask (IRS: distance-based, APC: attention-based)
+     - Sample multiple hybrid candidates from MSA-Transformer
+     - Evaluate candidates using embedding distance to target
      - Apply simulated annealing acceptance criterion
    - Select top candidates based on log-likelihood
-   - Check convergence (distance to target < threshold)
-3. **Path Assembly**: Trace back converged candidates to starting sequence
+   - Check convergence (embedding distance to target < threshold)
+3. **Pathway Assembly**: Trace back converged beams to construct complete mutational pathways
 
 ## Dependencies
 
 ### Core Libraries
 
 - **PyTorch**: Deep learning framework
-- **fair-esm**: ESM models (MSA-Transformer, ESM2)
-- **NumPy/SciPy**: Numerical computations
+- **fair-esm**: MSA-Transformer model
+- **NumPy/SciPy**: Numerical computations and distance metrics
 - **BioPython**: Sequence manipulation
-- **pysam**: FASTA file handling
-
-### Optional
-
-- **wandb**: Experiment tracking
-- **matplotlib/seaborn**: Visualization
-
-## Citation
-
-If you use this code in your research, please cite:
-
-```bibtex
-@article{protmixy2024,
-  title={Guided Protein Evolution using MSA-Transformer with Attention-based Positional Coupling},
-  author={[Your Name]},
-  journal={[Journal Name]},
-  year={2024}
-}
-```
-
-## License
-
-[Specify your license here - e.g., MIT, Apache 2.0, etc.]
-
-## Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes with clear commit messages
-4. Submit a pull request
+- **pysam**: FASTA/MSA file handling
+- **h5py**: Embedding storage
 
 ## Troubleshooting
 
@@ -197,18 +178,3 @@ Contributions are welcome! Please:
 - Increase `N_ITER`
 - Adjust `STOP_TOL_FACTOR`
 - Check that start and end sequences are in MSA
-
-**Import Errors**
-- Ensure all dependencies are installed
-- Check Python path includes project root
-- Verify ESM installation: `python -c "import esm"`
-
-## Contact
-
-For questions or issues, please open an issue on GitHub or contact [your email].
-
-## Acknowledgments
-
-- ESM models from Meta AI Research
-- MSA-Transformer architecture
-- [Add other acknowledgments]
