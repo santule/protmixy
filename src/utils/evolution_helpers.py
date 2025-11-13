@@ -23,7 +23,7 @@ import h5py
 from ete3 import Tree
 import matplotlib.pyplot as plt
 
-from src.utils.evaluator import EmbeddingEvaluator
+from src.utils.evaluator import MSATEvaluator
 from src.utils.model_loader import ModelLoader
 from config.settings import DEVICE, MASK_ID, DISTANCE_TEMP, MASK_CYCLE, \
     ENTROPY_THRESHOLD_FILTER, GENERATOR_METHOD, N_CANDIDATES
@@ -269,7 +269,7 @@ def eval_candidate_manifold(candidate, src, tgt, context_msa_file):
     d_aa_src = len(src_diff_aa)
 
     # plm distance wrt source and target
-    d_cos_tgt, pos_d_cos_tgt, src_pos_entropy, src_ll = EmbeddingEvaluator.scorer_manifold(candidate, context_msa_file)
+    d_cos_tgt, pos_d_cos_tgt, src_pos_entropy, src_ll = MSATEvaluator.scorer(candidate, context_msa_file)
     return d_cos_tgt, d_aa_tgt, d_aa_src, pos_d_cos_tgt, tgt_pos_diff_aa, src_pos_entropy, src_ll
 
 def tokens_changed(curr_sequence_token, cand_sequence_token):

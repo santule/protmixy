@@ -1,7 +1,7 @@
 """
 Evaluation functions for scoring candidate protein sequences.
 
-This module provides the EmbeddingEvaluator class which computes various
+This module provides the MSATEvaluator class which computes various
 distance metrics between candidate sequences and target sequences using
 ESM2 embeddings.
 """
@@ -10,14 +10,14 @@ from scipy.spatial.distance import cosine
 from src.utils import msa_output
 
 
-class EmbeddingEvaluator:
+class MSATEvaluator:
     _target_embedding = None
     _target_pos_embedding = None
     _source_embedding = None
     _source_pos_embedding =  None
 
     @staticmethod
-    def scorer_manifold(candidate_sequence, context_msa_file):
+    def scorer(candidate_sequence, context_msa_file):
 
         '''returns
         cos_dist_to_tgt: overall cosine distance between source and target
