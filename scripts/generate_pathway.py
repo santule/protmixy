@@ -121,12 +121,12 @@ def main():
         )
         
         if converged:
-            print("\n✅ Evolution completed successfully! Paths converged to target.")
+            print("\n✅ Pathway generation completed successfully! Paths converged to target.")
         else:
-            print("\n⚠️ Evolution completed but did not converge within iteration limit.")
+            print("\n⚠️ Pathway generation completed but did not converge within iteration limit.")
             
     except Exception as e:
-        print(f"\n❌ Error during evolution: {e}")
+        print(f"\n❌ Error during pathway generation: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)

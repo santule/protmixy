@@ -7,7 +7,6 @@ ESM2 embeddings.
 """
 import torch.nn.functional as F
 from scipy.spatial.distance import cosine
-from scipy.spatial import distance
 from src.utils import msa_output
 
 
