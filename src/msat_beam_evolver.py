@@ -25,8 +25,8 @@ from config.settings import ANNEAL_TEMP, TEMP_DECAY, ANNEAL_TEMP_MIN,\
       STOP_TOL_FACTOR, DEVICE, N_BEAM, N_TOSS, N_CANDIDATES, GENERATOR_METHOD
 from src.utils.evolution_helpers import (
     create_msa_for_iterative_sampling, msa_query_sample_manifold,
-    mask_sequence, eval_candidate_manifold, decode_token_to_aa,
-    generate_manifold_mask, tokens_changed, accept_or_reject_beam_candidates, 
+    mask_sequence, eval_candidate_pathway, decode_token_to_aa,
+    generate_pathway_mask, tokens_changed, accept_or_reject_beam_candidates, 
     accept_or_reject_iteration_candidates, assemble_paths, get_row_col_attention, apply_apc, validate_path_consistency)
 import pickle
 
@@ -62,7 +62,7 @@ def iterative_sampling(starting_seq_name, ending_seq_name, context_msa_file, ran
     # compare source sequence to the target sequence
     current_score, current_aa_tgt, current_aa_src, \
     current_pos_wise_dist_to_tgt, current_tgt_pos_diff_aa, current_pos_entropy, current_ll\
-    = eval_candidate_manifold(starting_seq, starting_seq, ending_seq, context_msa_file)
+    = eval_candidate_pathway(starting_seq, starting_seq, ending_seq, context_msa_file)
 
     # total distance to travel for the source sequence
     total_dist_to_target, total_aa_to_target = current_score, current_aa_tgt
@@ -143,7 +143,7 @@ def iterative_sampling(starting_seq_name, ending_seq_name, context_msa_file, ran
                 #print(f"🎲 Toss {toss}.")
 
                 # generate mask
-                mask, num_pos_mask = generate_manifold_mask(it, size_align_seq, \
+                mask, num_pos_mask = generate_pathway_mask(it, size_align_seq, \
                     current_pos_wise_dist_to_tgt, current_pos_entropy, current_tgt_pos_diff_aa, apc_avg_row_attn, max_mask, min_mask)
 
                 msa_batch_tokens[0, 0, :], target_pos_change = mask_sequence(current_sequence_token, mask)
@@ -164,7 +164,7 @@ def iterative_sampling(starting_seq_name, ending_seq_name, context_msa_file, ran
                     # print(f"starting_seq {starting_seq}")
                     # print(f"ending_seq {ending_seq}")
                     cand_score, cand_aa_tgt, cand_aa_src, cand_pos_wise_dist_to_tgt, cand_tgt_pos_diff_aa, cand_pos_entropy, cand_ll\
-                        = eval_candidate_manifold(cand_sequence, starting_seq, ending_seq, context_msa_file)
+                        = eval_candidate_pathway(cand_sequence, starting_seq, ending_seq, context_msa_file)
                 
                     # get changed information
                     actual_pos_changed, num_pos_changed = tokens_changed(current_sequence_token, cand_sequence_token)
