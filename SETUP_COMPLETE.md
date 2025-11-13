@@ -15,8 +15,7 @@ protmixy/
 ├── SETUP_COMPLETE.md           # This file
 ├── config/                      # Configuration
 │   ├── __init__.py
-│   ├── settings.py             # Enhanced settings with documentation
-│   └── log_config.py           # Logging configuration
+│   └── settings.py             # Enhanced settings with documentation
 ├── src/                         # Core source code
 │   ├── __init__.py
 │   ├── model_loader.py         # MSA-Transformer loader (singleton)

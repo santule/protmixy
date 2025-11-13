@@ -32,8 +32,7 @@ protmixy/
 ├── MIGRATION_GUIDE.md
 ├── config/
 │   ├── __init__.py
-│   ├── settings.py
-│   └── log_config.py
+│   └── settings.py
 ├── src/
 │   ├── __init__.py
 │   ├── model_loader.py

@@ -1,6 +1,8 @@
 import torch
-from config.log_config import logger
+import logging
 import heapq
+
+logger = logging.getLogger(__name__)
 import numpy as np
 from numpy.random import rand
 from src.utils import helpers

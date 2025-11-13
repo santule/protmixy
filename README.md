@@ -47,8 +47,7 @@ pip install -r requirements.txt
 ```
 protmixy/
 ├── config/              # Configuration files
-│   ├── settings.py      # Hyperparameters and paths
-│   └── log_config.py    # Logging configuration
+│   └── settings.py      # Hyperparameters and paths
 ├── src/                 # Core source code
 │   ├── model_loader.py  # MSA-Transformer model loader
 │   ├── protein_evolver.py    # Main evolution algorithm

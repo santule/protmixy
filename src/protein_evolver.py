@@ -12,8 +12,10 @@ sequence space between a starting and ending protein sequence.
 """
 
 import torch
-from config.log_config import logger
+import logging
 import numpy as np
+
+logger = logging.getLogger(__name__)
 import random
 from tqdm import tqdm
 from pysam import FastaFile

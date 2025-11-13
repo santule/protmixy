@@ -5,8 +5,7 @@
 ```
 protmixy/
 ├── config/
-│   ├── settings.py          # All hyperparameters and paths
-│   └── log_config.py        # Logging configuration
+│   └── settings.py          # All hyperparameters and paths
 ├── src/
 │   ├── model_loader.py      # MSA-Transformer model loader (singleton)
 │   ├── protein_evolver.py   # Main evolution algorithm (iterative_sampling)
@@ -191,7 +190,7 @@ ROOT_PATH = os.path.abspath("/Users/Shared/projects/protmixy/")
 ```python
 # Configuration
 from config.settings import *
-from config.log_config import logger
+import logging
 
 # Core modules
 from src.model_loader import ModelLoader
