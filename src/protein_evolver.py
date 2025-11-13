@@ -23,7 +23,7 @@ from src.utils.model_loader import ModelLoader
 import config.settings as settings
 from config.settings import ANNEAL_TEMP, TEMP_DECAY, ANNEAL_TEMP_MIN,\
       STOP_TOL_FACTOR, DEVICE, N_BEAM, N_TOSS, N_CANDIDATES, GENERATOR_METHOD
-from src.evolution_utils import (
+from src.utils.evolution_helpers import (
     create_msa_for_iterative_sampling, msa_query_sample_manifold,
     mask_sequence, eval_candidate_manifold, decode_token_to_aa,
     generate_manifold_mask, tokens_changed, accept_or_reject_beam_candidates, 
