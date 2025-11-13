@@ -5,20 +5,19 @@
 ```
 protmixy/
 ├── config/
-│   └── settings.py          # All hyperparameters and paths
+│   └── settings.py              # All hyperparameters and paths
 ├── src/
-│   ├── protein_evolver.py   # Main evolution algorithm (iterative_sampling)
-│   ├── evolution_utils.py   # Evolution helper functions
+│   ├── protein_evolver.py       # Main evolution algorithm
 │   └── utils/
-│       ├── model_loader.py  # MSA-Transformer model loader (singleton)
-│       ├── evaluator.py     # EmbeddingEvaluator for scoring
-│       ├── helpers.py       # General utilities (MSA, FASTA, etc.)
-│       └── msa_output.py    # MSA-Transformer output processing
+│       ├── model_loader.py      # MSA-Transformer model loader
+│       ├── evaluator.py         # Sequence evaluation
+│       ├── evolution_helpers.py # Evolution + utility functions
+│       └── msa_output.py        # MSA processing
 ├── scripts/
-│   └── run_evolution.py     # Main CLI entry point
+│   └── run_evolution.py         # CLI entry point
 ├── docs/
-│   └── methods.md           # Detailed algorithm documentation
-└── data/                    # Your data goes here
+│   └── methods.md               # Algorithm documentation
+└── data/                        # Your data directory
 ```
 
 ## 🚀 Quick Start
@@ -180,10 +179,9 @@ ROOT_PATH = os.path.abspath("/Users/Shared/projects/protmixy/")
 
 ## 📚 Documentation
 
-- **README.md** - Full project documentation
-- **docs/methods.md** - Algorithm details
-- **MIGRATION_GUIDE.md** - Understanding the restructuring
-- **SETUP_COMPLETE.md** - Setup instructions
+- **README.md** - Full project overview and usage
+- **docs/methods.md** - Detailed algorithm documentation
+- **QUICK_REFERENCE.md** - This file (quick lookup)
 
 ## 🔗 Import Cheatsheet
 
@@ -195,10 +193,9 @@ import logging
 # Core modules
 from src.utils.model_loader import ModelLoader
 from src.protein_evolver import iterative_sampling
-from src.evolution_utils import *
 
 # Utilities
-from src.utils import helpers
+from src.utils import evolution_helpers
 from src.utils import msa_output
 from src.utils.evaluator import EmbeddingEvaluator
 ```
