@@ -163,10 +163,10 @@ def create_msa_for_iterative_sampling(context_msa_file, starting_seq):
     """
     with tempfile.NamedTemporaryFile(suffix=".fasta", delete=False) as temp_file:
         start_msa_file_name = temp_file.name
-        helpers.prepend_sequence_to_fasta(starting_seq, 'candidate_sequence', context_msa_file, start_msa_file_name)
-    total_seqs, size_align_seq = helpers.check_msa_stats(start_msa_file_name)
+        prepend_sequence_to_fasta(starting_seq, 'candidate_sequence', context_msa_file, start_msa_file_name)
+    total_seqs, size_align_seq = check_msa_stats(start_msa_file_name)
     print(f"MSA Stats - total sequences is {total_seqs} and each sequence length is {size_align_seq}")
-    msa_data = [helpers.read_msa(start_msa_file_name, total_seqs)]
+    msa_data = [read_msa(start_msa_file_name, total_seqs)]
     print(f"READ MSA file {start_msa_file_name} with {total_seqs} sequences")
     return msa_data, total_seqs, size_align_seq
 
@@ -525,7 +525,7 @@ def accept_or_reject_beam_candidates(beam_candidates, current_state, t, it):
 
     return accepted_candidates
 
-def write_evolution_fasta(output_file_path, path_history, starting_seq_name, starting_seq, ending_seq_name, ending_seq, random_seed):
+def write_pathway_fasta(output_file_path, path_history, starting_seq_name, starting_seq, ending_seq_name, ending_seq, random_seed):
     """
     Write the evolutionary path to a FASTA file, including start sequence, accepted sequences, and end sequence.
     
@@ -797,3 +797,22 @@ def load_embeddings_from_hdf5(file_name):
         for seq_name in h5file.keys():
             embeddings[seq_name] = h5file[seq_name][:]
     return embeddings
+
+def prepend_sequence_to_fasta(candidate_sequence, candidate_sequence_name, context_msa_file, new_msa_file):
+    
+    # Read the original content of the file
+    with open(context_msa_file, 'r') as file:
+        original_content = file.read()
+
+    # Create the new sequence in FASTA format
+    new_sequence = f">{candidate_sequence_name}\n{candidate_sequence}\n"
+    
+    # Prepend the new sequence to the original content
+    updated_content = new_sequence + original_content
+    
+
+    # Write the updated content back to the file
+    # check if directory exists
+    os.makedirs(os.path.dirname(new_msa_file), exist_ok=True)
+    with open(new_msa_file, 'w') as file:
+        file.write(updated_content)
