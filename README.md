@@ -49,9 +49,13 @@ protmixy/
 ├── config/              # Configuration files
 │   └── settings.py      # Hyperparameters and paths
 ├── src/                 # Core source code
-│   ├── model_loader.py  # MSA-Transformer model loader
 │   ├── protein_evolver.py    # Main evolution algorithm
-│   └── evolution_utils.py    # Helper functions
+│   ├── evolution_utils.py    # Helper functions
+│   └── utils/                # Utility modules
+│       ├── model_loader.py   # MSA-Transformer model loader
+│       ├── evaluator.py      # Sequence evaluation
+│       ├── helpers.py        # General utilities
+│       └── msa_output.py     # MSA processing
 ├── scripts/             # Executable scripts
 │   └── run_evolution.py # Main entry point
 ├── data/                # Data directory (create subdirectories as needed)

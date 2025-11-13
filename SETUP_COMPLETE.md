@@ -18,11 +18,11 @@ protmixy/
 │   └── settings.py             # Enhanced settings with documentation
 ├── src/                         # Core source code
 │   ├── __init__.py
-│   ├── model_loader.py         # MSA-Transformer loader (singleton)
 │   ├── protein_evolver.py      # Main evolution algorithm
 │   ├── evolution_utils.py      # Evolution helper functions
 │   └── utils/                  # Utility modules
 │       ├── __init__.py
+│       ├── model_loader.py     # MSA-Transformer loader (singleton)
 │       ├── evaluator.py        # Sequence evaluation metrics
 │       ├── helpers.py          # General helper functions
 │       └── msa_output.py       # MSA-Transformer output processing
@@ -37,14 +37,14 @@ protmixy/
 ### 2. **Files Renamed**
 - `msat_evolver_manifold.py` → `src/protein_evolver.py`
 - `msat_evolver_helpers_manifold.py` → `src/evolution_utils.py`
-- `model_loader.py` → `src/model_loader.py`
+- `model_loader.py` → `src/utils/model_loader.py`
 - `evaluator_manifold.py` → `src/utils/evaluator.py`
 - `get_msat_output.py` → `src/utils/msa_output.py`
 - `helpers.py` → `src/utils/helpers.py`
 
 ### 3. **All Imports Updated**
 All files now use the new module structure:
-- `from src.model_loader import ModelLoader`
+- `from src.utils.model_loader import ModelLoader`
 - `from src.utils import helpers`
 - `from src.utils.evaluator import EmbeddingEvaluator`
 - `from src.utils import msa_output`
@@ -114,7 +114,7 @@ All required packages are in `requirements.txt`:
 
 3. **Test the setup**:
    ```bash
-   python -c "from src.model_loader import ModelLoader; print('✅ Imports working!')"
+   python -c "from src.utils.model_loader import ModelLoader; print('✅ Imports working!')"
    ```
 
 4. **Run a test evolution**:

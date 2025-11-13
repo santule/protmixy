@@ -9,7 +9,7 @@ from src.utils import helpers
 from src.utils.evaluator import EmbeddingEvaluator
 import tempfile
 import math
-from src.model_loader import ModelLoader
+from src.utils.model_loader import ModelLoader
 from config.settings import DEVICE, MASK_ID, DISTANCE_TEMP,\
      MASK_CYCLE, ENTROPY_THRESHOLD_FILTER, GENERATOR_METHOD, N_CANDIDATES
 import random

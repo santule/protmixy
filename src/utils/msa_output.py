@@ -9,7 +9,7 @@ import os
 import numpy as np
 import tempfile
 from src.utils import helpers
-from src.model_loader import ModelLoader
+from src.utils.model_loader import ModelLoader
 from config.settings import DEVICE
 
 def get_embedding(context_msa_file):

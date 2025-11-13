@@ -7,10 +7,10 @@ protmixy/
 ├── config/
 │   └── settings.py          # All hyperparameters and paths
 ├── src/
-│   ├── model_loader.py      # MSA-Transformer model loader (singleton)
 │   ├── protein_evolver.py   # Main evolution algorithm (iterative_sampling)
 │   ├── evolution_utils.py   # Evolution helper functions
 │   └── utils/
+│       ├── model_loader.py  # MSA-Transformer model loader (singleton)
 │       ├── evaluator.py     # EmbeddingEvaluator for scoring
 │       ├── helpers.py       # General utilities (MSA, FASTA, etc.)
 │       └── msa_output.py    # MSA-Transformer output processing
@@ -64,7 +64,7 @@ converged = iterative_sampling(
 
 ### Model Loading
 ```python
-from src.model_loader import ModelLoader
+from src.utils.model_loader import ModelLoader
 
 model, alphabet = ModelLoader.get_model()
 ```
@@ -193,7 +193,7 @@ from config.settings import *
 import logging
 
 # Core modules
-from src.model_loader import ModelLoader
+from src.utils.model_loader import ModelLoader
 from src.protein_evolver import iterative_sampling
 from src.evolution_utils import *
 

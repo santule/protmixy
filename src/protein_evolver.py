@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 import random
 from tqdm import tqdm
 from pysam import FastaFile
-from src.model_loader import ModelLoader
+from src.utils.model_loader import ModelLoader
 import config.settings as settings
 from config.settings import ANNEAL_TEMP, TEMP_DECAY, ANNEAL_TEMP_MIN,\
       STOP_TOL_FACTOR, DEVICE, N_BEAM, N_TOSS, N_CANDIDATES, GENERATOR_METHOD

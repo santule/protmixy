@@ -7,7 +7,7 @@ This document explains the restructuring changes made to prepare the codebase fo
 | Old Name | New Name | Location |
 |----------|----------|----------|
 | `settings.py` | `settings.py` | `config/` |
-| `model_loader.py` | `model_loader.py` | `src/` |
+| `model_loader.py` | `model_loader.py` | `src/utils/` |
 | `msat_evolver_manifold.py` | `protein_evolver.py` | `src/` |
 | `msat_evolver_helpers_manifold.py` | `evolution_utils.py` | `src/` |
 
@@ -35,9 +35,13 @@ protmixy/
 │   └── settings.py
 ├── src/
 │   ├── __init__.py
-│   ├── model_loader.py
 │   ├── protein_evolver.py
-│   └── evolution_utils.py
+│   ├── evolution_utils.py
+│   └── utils/
+│       ├── model_loader.py
+│       ├── evaluator.py
+│       ├── helpers.py
+│       └── msa_output.py
 ├── scripts/
 │   └── run_evolution.py
 ├── docs/
@@ -57,7 +61,7 @@ import msat_evolver_helpers_manifold as helpers
 
 ### New Imports
 ```python
-from src.model_loader import ModelLoader
+from src.utils.model_loader import ModelLoader
 from config.settings import DEVICE
 from src.evolution_utils import *
 ```
