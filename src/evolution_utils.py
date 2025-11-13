@@ -1,10 +1,10 @@
 import torch
 from config.log_config import logger
 import heapq
-import common_utils.helpers as helpers
 import numpy as np
 from numpy.random import rand
-from generator.utils.evaluator_manifold import EmbeddingEvaluator
+from src.utils import helpers
+from src.utils.evaluator import EmbeddingEvaluator
 import tempfile
 import math
 from src.model_loader import ModelLoader
