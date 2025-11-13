@@ -1,16 +1,16 @@
 """
 Evaluation functions for scoring candidate protein sequences.
 
-This module provides the MSATEvaluator class which computes various
+This module provides the PathwayEvaluator class which computes various
 distance metrics between candidate sequences and target sequences using
-ESM2 embeddings.
+MSA-Transformer embeddings.
 """
 import torch.nn.functional as F
 from scipy.spatial.distance import cosine
 from src.utils import msa_output
 
 
-class MSATEvaluator:
+class PathwayEvaluator:
     _target_embedding = None
     _target_pos_embedding = None
     _source_embedding = None

@@ -12,19 +12,16 @@ sequence space between a starting and ending protein sequence.
 """
 
 import torch
-import logging
 import numpy as np
-
-logger = logging.getLogger(__name__)
 import random
 from tqdm import tqdm
 from pysam import FastaFile
 from src.utils.model_loader import ModelLoader
 import config.settings as settings
 from config.settings import ANNEAL_TEMP, TEMP_DECAY, ANNEAL_TEMP_MIN,\
-      STOP_TOL_FACTOR, DEVICE, N_BEAM, N_TOSS, N_CANDIDATES, GENERATOR_METHOD
-from src.utils.evolution_helpers import (
-    create_msa_for_iterative_sampling, msa_query_sample_manifold,
+      STOP_TOL_FACTOR, DEVICE, N_BEAM, N_TOSS, GENERATOR_METHOD
+from src.utils.helpers import (
+    create_msa_for_iterative_sampling, msa_query_sample,
     mask_sequence, eval_candidate_pathway, decode_token_to_aa,
     generate_pathway_mask, tokens_changed, accept_or_reject_beam_candidates, 
     accept_or_reject_iteration_candidates, assemble_paths, get_row_col_attention, apply_apc, validate_path_consistency)
@@ -35,14 +32,10 @@ msa_transformer, msa_alphabet = ModelLoader.get_model()
 msa_batch_converter = msa_alphabet.get_batch_converter()
 idx_list = msa_alphabet.tok_to_idx # reference dict for model token
 aa_list  = {v: k for k,v in idx_list.items()}
-# print(idx_list)
-# print(aa_list)
-
 valid_aa_vals = torch.tensor([ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 
                              18, 19, 20, 21, 22, 23, 30],dtype=torch.int64)
 
-''' iterative sampling  '''
-def iterative_sampling(starting_seq_name, ending_seq_name, context_msa_file, random_seed, n_iter, max_mask, min_mask, output_file_path):
+def iterative_sampling(full_context_file, starting_seq_name, ending_seq_name, context_msa_file, random_seed, n_iter, max_mask, min_mask, output_file_path):
 
     # Seed the sampler
     torch.manual_seed(random_seed)
@@ -55,7 +48,7 @@ def iterative_sampling(starting_seq_name, ending_seq_name, context_msa_file, ran
     torch.backends.cudnn.benchmark = False
 
     # get the starting and ending sequence
-    global_fasta_file_lkp = FastaFile(settings.FULL_CONTEXT_FILE)
+    global_fasta_file_lkp = FastaFile(full_context_file)
     starting_seq = global_fasta_file_lkp.fetch(starting_seq_name)
     ending_seq   = global_fasta_file_lkp.fetch(ending_seq_name)
 
@@ -149,9 +142,8 @@ def iterative_sampling(starting_seq_name, ending_seq_name, context_msa_file, ran
                 msa_batch_tokens[0, 0, :], target_pos_change = mask_sequence(current_sequence_token, mask)
 
                 # get candidates in a list
-                cand_sequence_token_lst  = msa_query_sample_manifold(msa_batch_tokens)
+                cand_sequence_token_lst  = msa_query_sample(msa_batch_tokens)
 
-                #print(cand_sequence_token_lst)
                 # evaluate candidate
                 for candidate_idx in range(len(cand_sequence_token_lst)): # 5 candidates
                     candidate_state_id   = str(current_state_id) + '-' + str(it)  + ':' + str(toss) + ':' + str(candidate_idx)
@@ -160,9 +152,6 @@ def iterative_sampling(starting_seq_name, ending_seq_name, context_msa_file, ran
                     cand_sequence       = decode_token_to_aa(cand_sequence_token)
 
                     # score candidate
-                    # print(f"cand_sequence {cand_sequence}")
-                    # print(f"starting_seq {starting_seq}")
-                    # print(f"ending_seq {ending_seq}")
                     cand_score, cand_aa_tgt, cand_aa_src, cand_pos_wise_dist_to_tgt, cand_tgt_pos_diff_aa, cand_pos_entropy, cand_ll\
                         = eval_candidate_pathway(cand_sequence, starting_seq, ending_seq, context_msa_file)
                 

@@ -26,9 +26,6 @@ aa_list  = {v: k for k,v in idx_list.items()}
 valid_aa_vals = torch.tensor([ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 
                              18, 19, 20, 21, 22, 23, 30],dtype=torch.int64)
 
-class MSAContextMismatchError(Exception):
-    pass
-
 def get_row_col_attention(msa_batch_tokens):
     with torch.no_grad():
         results = msa_transformer(msa_batch_tokens.to(DEVICE),repr_layers=[12],return_contacts=False, need_head_weights=True)
@@ -79,7 +76,7 @@ def top_k_samples(prob_matrix, k):
     
     return beam
 
-def msa_query_sample_manifold(msa_batch_tokens):
+def msa_query_sample(msa_batch_tokens):
     """
     Sample a sequence from the MSA-Transformer model using the provided batch tokens.
     
@@ -104,21 +101,6 @@ def msa_query_sample_manifold(msa_batch_tokens):
         top_k_seq_tokens = top_k_samples(hybrid_probs, N_CANDIDATES)
         #print(f"🧬 Generated {len(top_k_seq_tokens)} top-k candidates")
         
-        # debug - Verify top-k by calculating log probabilities for each candidate
-        # print(f"🧬 Verifying top-k candidates:")
-        # candidate_log_probs = []
-        # for i, seq in enumerate(top_k_seq_tokens):
-        #     log_prob = 0.0
-        #     for pos, token_id in enumerate(seq):
-        #         if pos < len(hybrid_probs):
-        #             log_prob += np.log(hybrid_probs[pos, token_id] + 1e-10)
-        #     candidate_log_probs.append((i, log_prob))
-        #     print(f"  Candidate {i}: log_prob = {log_prob:.4f}")
-        
-        # # Sort by log probability to verify ranking
-        # sorted_candidates = sorted(candidate_log_probs, key=lambda x: x[1], reverse=True)
-        # print(f"🧬 Candidates ranked by log probability: {[f'C{idx}({prob:.4f})' for idx, prob in sorted_candidates]}")
-
         # add hybrid token to the top K token
         all_candidates = top_k_seq_tokens + [argmax_token]
         #print(f"🧬 Total candidates before deduplication: {len(all_candidates)}")

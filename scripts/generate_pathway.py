@@ -20,7 +20,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.protein_evolver import iterative_sampling
 from config.settings import (
-    FULL_CONTEXT_FILE, 
+    FULL_CONTEXT_FILE,
+    MSA_CONTEXT_FILE, 
     GENERATOR_OUTPUT_PATH,
     N_ITER,
     MAX_P_MASK,
@@ -34,6 +35,13 @@ def main():
     """Main entry point for mutational pathway generation experiments."""
     parser = argparse.ArgumentParser(
         description='Generate mutational pathways between protein sequences using MSA-Transformer'
+    )
+    
+    parser.add_argument(
+        '--full-context-file',
+        type=str,
+        default=FULL_CONTEXT_FILE,
+        help='Path to full context file'
     )
     
     parser.add_argument(
@@ -81,7 +89,7 @@ def main():
     parser.add_argument(
         '--context-msa',
         type=str,
-        default=FULL_CONTEXT_FILE,
+        default=MSA_CONTEXT_FILE,
         help='Path to context MSA file'
     )
     
@@ -110,6 +118,7 @@ def main():
     # Run evolution
     try:
         converged = iterative_sampling(
+            full_context_file=args.full_context_file,
             starting_seq_name=args.start,
             ending_seq_name=args.end,
             context_msa_file=args.context_msa,
