@@ -14,7 +14,7 @@ protmixy/
 │       ├── evolution_helpers.py # Evolution + utility functions
 │       └── msa_output.py        # MSA processing
 ├── scripts/
-│   └── run_evolution.py         # CLI entry point
+│   └── generate_pathway.py      # CLI entry point
 ├── docs/
 │   └── methods.md               # Algorithm documentation
 └── data/                        # Your data directory
@@ -37,7 +37,7 @@ ROOT_PATH = "/path/to/protmixy/" # Your project path
 
 ### 3. Run Evolution
 ```bash
-python scripts/run_evolution.py \
+python scripts/generate_pathway.py \
     --start YOUR_START_SEQ \
     --end YOUR_END_SEQ \
     --seed 42
@@ -160,7 +160,7 @@ PROTEIN_FAMILY = 'your_family'
 ```bash
 # Make sure you're in project root
 cd /Users/Shared/projects/protmixy
-python scripts/run_evolution.py --help
+python scripts/generate_pathway.py --help
 ```
 
 ### CUDA Out of Memory

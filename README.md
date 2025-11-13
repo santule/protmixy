@@ -57,7 +57,7 @@ protmixy/
 │       ├── helpers.py        # General utilities
 │       └── msa_output.py     # MSA processing
 ├── scripts/             # Executable scripts
-│   └── run_evolution.py # Main entry point
+│   └── generate_pathway.py # Main entry point
 ├── data/                # Data directory (create subdirectories as needed)
 ├── docs/                # Documentation
 ├── requirements.txt     # Python dependencies
@@ -69,13 +69,13 @@ protmixy/
 ### Basic Usage
 
 ```bash
-python scripts/run_evolution.py --start dummy1 --end dummy2 --seed 42
+python scripts/generate_pathway.py --start dummy1 --end dummy2 --seed 42
 ```
 
 ### Advanced Options
 
 ```bash
-python scripts/run_evolution.py \
+python scripts/generate_pathway.py \
     --start START_SEQ_NAME \
     --end END_SEQ_NAME \
     --seed 42 \

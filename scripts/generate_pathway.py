@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-Main script for running protein evolution experiments.
+Main script for running mutational pathway generation experiments.
 
-This script serves as the entry point for generating evolutionary paths
+This script serves as the entry point for generating mutational pathways
 between protein sequences using MSA-Transformer.
 
 Usage:
-    python scripts/run_evolution.py --start START_SEQ --end END_SEQ --seed SEED
+    python scripts/generate_pathway.py --start START_SEQ --end END_SEQ --seed SEED
 
 Example:
-    python scripts/run_evolution.py --start dummy1 --end dummy2 --seed 42
+    python scripts/generate_pathway.py --start dummy1 --end dummy2 --seed 42
 """
 import argparse
 import sys
@@ -31,9 +31,9 @@ from config.settings import (
 
 
 def main():
-    """Main entry point for protein evolution experiments."""
+    """Main entry point for mutational pathway generation experiments."""
     parser = argparse.ArgumentParser(
-        description='Generate evolutionary paths between protein sequences using MSA-Transformer'
+        description='Generate mutational pathways between protein sequences using MSA-Transformer'
     )
     
     parser.add_argument(
@@ -53,8 +53,8 @@ def main():
     parser.add_argument(
         '--seed',
         type=int,
-        default=42,
-        help='Random seed for reproducibility (default: 42)'
+        default=10,
+        help='Random seed for reproducibility (default: 10)'
     )
     
     parser.add_argument(
@@ -96,7 +96,7 @@ def main():
     
     # Print experiment configuration
     print("\n" + "="*80)
-    print("PROTEIN EVOLUTION EXPERIMENT")
+    print("MUTATIONAL PATHWAY GENERATION.")
     print("="*80)
     print(f"Starting sequence: {args.start}")
     print(f"Ending sequence: {args.end}")
