@@ -15,8 +15,8 @@ import h5py
 from pysam import FastxFile
 from src.utils.evaluator import PathwayEvaluator
 from src.utils.model_loader import ModelLoader
-from config.settings import DEVICE, MASK_ID, DISTANCE_TEMP, MASK_CYCLE, \
-    ENTROPY_THRESHOLD_FILTER, GENERATOR_METHOD, N_CANDIDATES
+from config.settings import DEVICE, MASK_ID, DISTANCE_TEMP, \
+    ENTROPY_THRESHOLD_FILTER, GENERATOR_METHOD, N_CANDIDATES, P_MASK
 
 # load the generator + alphabet
 msa_transformer, msa_alphabet = ModelLoader.get_model()
@@ -296,26 +296,16 @@ def distance_to_probabilities(distances, entropy, tgt_pos_diff):
 
     return probs
 
-def calc_mask_size(size_align_seq, iteration_no, max_mask, min_mask):
+def calc_mask_size(size_align_seq):
     """
     Calculate the number of positions to mask based on the current iteration.
     
-    This function implements a cyclic masking strategy where the number of masked positions
-    varies throughout the evolution process according to a cycle defined by MASK_CYCLE.
-    
     Args:
         size_align_seq (int): Size of the alignment sequence
-        iteration_no (int): Current iteration number
-        
     Returns:
         int: Number of positions to mask in this iteration
     """
-    cycle_progress = (iteration_no % MASK_CYCLE) / MASK_CYCLE
-        
-    max_positions = int(max_mask * size_align_seq)
-    min_positions = int(min_mask * size_align_seq)
-    num_pos_mask  = max(min_positions, int(max_positions - (cycle_progress * (max_positions - min_positions))))
-
+    num_pos_mask = int(P_MASK * size_align_seq)
     return num_pos_mask
 
 def get_sampled_positions_cpos(current_pos_wise_dist_to_tgt, num_pos_mask, current_pos_entropy, current_tgt_pos_diff):
@@ -420,7 +410,7 @@ def get_sampled_positions_ra(current_pos_wise_dist_to_tgt, num_pos_mask, current
     #print(f"Masked positions: {all_positions}")
     return all_positions
 
-def generate_pathway_mask(iteration_no, size_align_seq, current_pos_wise_dist_to_tgt, current_pos_entropy, current_tgt_pos_diff, row_attention, max_mask, min_mask):
+def generate_pathway_mask(iteration_no, size_align_seq, current_pos_wise_dist_to_tgt, current_pos_entropy, current_tgt_pos_diff, row_attention):
     """
     Generate a mask for positions to be sampled based on their distance to target and entropy.
     
@@ -434,7 +424,7 @@ def generate_pathway_mask(iteration_no, size_align_seq, current_pos_wise_dist_to
     Returns:
         numpy.ndarray: Sampled positions to mask
     """
-    num_pos_mask = calc_mask_size(size_align_seq, iteration_no, max_mask, min_mask)
+    num_pos_mask = calc_mask_size(size_align_seq)
     if iteration_no == 1:
         num_pos_mask = 0
         all_positions = np.array([])

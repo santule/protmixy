@@ -17,9 +17,8 @@ import random
 from tqdm import tqdm
 from pysam import FastaFile
 from src.utils.model_loader import ModelLoader
-import config.settings as settings
 from config.settings import ANNEAL_TEMP, TEMP_DECAY, ANNEAL_TEMP_MIN,\
-      STOP_TOL_FACTOR, DEVICE, N_BEAM, N_TOSS, GENERATOR_METHOD
+      STOP_TOL_FACTOR, DEVICE, N_BEAM, N_TOSS, GENERATOR_METHOD, P_MASK
 from src.utils.helpers import (
     create_msa_for_iterative_sampling, msa_query_sample,
     mask_sequence, eval_candidate_pathway, decode_token_to_aa,
@@ -35,7 +34,7 @@ aa_list  = {v: k for k,v in idx_list.items()}
 valid_aa_vals = torch.tensor([ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 
                              18, 19, 20, 21, 22, 23, 30],dtype=torch.int64)
 
-def iterative_sampling(full_context_file, starting_seq_name, ending_seq_name, context_msa_file, random_seed, n_iter, max_mask, min_mask, output_file_path):
+def iterative_sampling(full_context_file, starting_seq_name, ending_seq_name, context_msa_file, random_seed, n_iter, p_mask, output_file_path):
 
     # Seed the sampler
     torch.manual_seed(random_seed)
@@ -137,7 +136,7 @@ def iterative_sampling(full_context_file, starting_seq_name, ending_seq_name, co
 
                 # generate mask
                 mask, num_pos_mask = generate_pathway_mask(it, size_align_seq, \
-                    current_pos_wise_dist_to_tgt, current_pos_entropy, current_tgt_pos_diff_aa, apc_avg_row_attn, max_mask, min_mask)
+                    current_pos_wise_dist_to_tgt, current_pos_entropy, current_tgt_pos_diff_aa, apc_avg_row_attn, p_mask)
 
                 msa_batch_tokens[0, 0, :], target_pos_change = mask_sequence(current_sequence_token, mask)
 

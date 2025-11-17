@@ -24,8 +24,7 @@ from config.settings import (
     MSA_CONTEXT_FILE, 
     GENERATOR_OUTPUT_PATH,
     N_ITER,
-    MAX_P_MASK,
-    MIN_P_MASK,
+    P_MASK,
     START_SEQ_NAME,
     END_SEQ_NAME
 )
@@ -73,17 +72,10 @@ def main():
     )
     
     parser.add_argument(
-        '--max-mask',
+        '--p-mask',
         type=float,
-        default=MAX_P_MASK,
-        help=f'Maximum masking proportion (default: {MAX_P_MASK})'
-    )
-    
-    parser.add_argument(
-        '--min-mask',
-        type=float,
-        default=MIN_P_MASK,
-        help=f'Minimum masking proportion (default: {MIN_P_MASK})'
+        default=P_MASK,
+        help=f'Maximum masking proportion (default: {P_MASK})'
     )
     
     parser.add_argument(
