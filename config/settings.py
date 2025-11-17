@@ -39,7 +39,7 @@ START_SEQ_NAME        = 'dummy1'
 END_SEQ_NAME          = 'dummy2'
 
 # Create output directory if it doesn't exist
-for path in (OUTPUT_FILE_PATH, PAIR_OUTPUT_FILE_PATH, GENERATOR_OUTPUT_PATH):
+for path in (PAIR_OUTPUT_FILE_PATH, GENERATOR_OUTPUT_PATH):
     os.makedirs(path, exist_ok=True)
 
 # =============================================================================
