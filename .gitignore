@@ -38,14 +38,6 @@ ENV/
 .ipynb_checkpoints
 *.ipynb
 
-# Data files (adjust as needed)
-data/*/
-!data/.gitkeep
-*.aln
-*.fasta
-*.pkl
-*.h5
-*.hdf5
 
 # Model checkpoints
 *.pt
