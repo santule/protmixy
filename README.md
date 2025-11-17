@@ -67,10 +67,9 @@ protmixy/
 │       ├── evaluator.py      # Sequence evaluation
 │       ├── helpers.py        # Pathway generation utilities
 │       └── msa_output.py     # MSA processing
-├── scripts/             # Executable scripts
-│   └── generate_pathway.py  # Main entry point
 ├── data/                # Data directory (MSA files, sequences)
 ├── docs/                # Documentation
+├── generate_pathway.py  # Main entry point script
 ├── requirements.txt     # Python dependencies
 └── README.md           # This file
 ```
@@ -80,33 +79,19 @@ protmixy/
 ### Basic Usage
 
 ```bash
-python scripts/generate_pathway.py --start dummy1 --end dummy2 --seed 42
+python generate_pathway.py
 ```
 
-### Advanced Options
+All configuration is controlled via `config/settings.py`. Before running:
 
-```bash
-python scripts/generate_pathway.py \
-    --start START_SEQ_NAME \
-    --end END_SEQ_NAME \
-    --seed 42 \
-    --n-iter 100 \
-    --max-mask 0.05 \
-    --min-mask 0.05 \
-    --context-msa /path/to/msa.aln \
-    --output-dir /path/to/output/
-```
-
-### Parameters
-
-- `--start`: Starting sequence name (must exist in MSA file)
-- `--end`: Target sequence name (must exist in MSA file)
-- `--seed`: Random seed for reproducibility
-- `--n-iter`: Maximum number of iterations (default: 100)
-- `--max-mask`: Maximum proportion of sequence to mask (default: 0.05)
-- `--min-mask`: Minimum proportion of sequence to mask (default: 0.05)
-- `--context-msa`: Path to MSA alignment file
-- `--output-dir`: Directory for output files
+- Set `START_SEQ_NAME` and `END_SEQ_NAME` to sequence IDs present in `FULL_CONTEXT_FILE`.
+- Ensure your input files exist:
+  - `MSA_CONTEXT_FILE` (default: `data/input_data/msa_context.aln`)
+  - `FULL_CONTEXT_FILE` (default: `data/input_data/full_context.aln`)
+- Adjust paths if needed:
+  - `ROOT_PATH`, `MAIN_DATA_PATH`, `INPUT_FILE_PATH`, `OUTPUT_FILE_PATH`
+- Tune pathway generation hyperparameters:
+  - `GENERATOR_METHOD`, `N_ITER`, `P_MASK`, `N_BEAM`, `N_TOSS`, `N_CANDIDATES`, etc.
 
 ## Configuration
 

@@ -27,20 +27,20 @@ ROOT_PATH = f"."
 MAIN_DATA_PATH        = f"{ROOT_PATH}/data/"
 INPUT_FILE_PATH       = f"{MAIN_DATA_PATH}input_data/"
 OUTPUT_FILE_PATH      = f"{MAIN_DATA_PATH}output_data/"
-PAIR_OUTPUT_FILE_PATH = f"{OUTPUT_FILE_PATH}{START_SEQ_NAME}_{END_SEQ_NAME}/"
-GENERATOR_OUTPUT_PATH = f"{PAIR_OUTPUT_FILE_PATH}{GENERATOR_METHOD}/"
 
 # Input Information
-MSA_CONTEXT_FILE      = f'{INPUT_FILE_PATH}msa_context.aln'
 FULL_CONTEXT_FILE     = f'{INPUT_FILE_PATH}full_context.aln'
 
 # Sequence identifiers - should be present in FULL_CONTEXT_FILE
-START_SEQ_NAME        = 'dummy1'
-END_SEQ_NAME          = 'dummy2'
+START_SEQ_NAME        = 'tr|A0A7Z9ZYA4|A0A7Z9ZYA4_9BACT'
+END_SEQ_NAME          = 'tr|A0A832BM14|A0A832BM14_9PROT'
+
+PAIR_OUTPUT_FILE_PATH = f"{OUTPUT_FILE_PATH}{START_SEQ_NAME}_{END_SEQ_NAME}/"
+GENERATOR_OUTPUT_PATH = f"{PAIR_OUTPUT_FILE_PATH}{GENERATOR_METHOD}/"
+MSA_CONTEXT_FILE      = f'{PAIR_OUTPUT_FILE_PATH}cond_context.aln'
 
 # Create output directory if it doesn't exist
-for path in (PAIR_OUTPUT_FILE_PATH, GENERATOR_OUTPUT_PATH):
-    os.makedirs(path, exist_ok=True)
+os.makedirs(GENERATOR_OUTPUT_PATH, exist_ok=True)
 
 # =============================================================================
 # MODEL CONFIGURATION
@@ -56,7 +56,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Simulated annealing parameters
 ANNEAL_TEMP = 1.0
-TEMP_DECAY = 0.99
+TEMP_DECAY  = 0.99
 ANNEAL_TEMP_MIN = 0.0001 * ANNEAL_TEMP
 
 # Masking parameters

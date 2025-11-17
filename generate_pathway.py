@@ -11,7 +11,6 @@ Usage:
 Example:
     python scripts/generate_pathway.py --start dummy1 --end dummy2 --seed 42
 """
-import argparse
 import sys
 import os
 
@@ -32,93 +31,41 @@ from config.settings import (
 
 def main():
     """Main entry point for mutational pathway generation experiments."""
-    parser = argparse.ArgumentParser(
-        description='Generate mutational pathways between protein sequences using MSA-Transformer'
-    )
-    
-    parser.add_argument(
-        '--full-context-file',
-        type=str,
-        default=FULL_CONTEXT_FILE,
-        help='Path to full context file'
-    )
-    
-    parser.add_argument(
-        '--start',
-        type=str,
-        default=START_SEQ_NAME,
-        help=f'Starting sequence name (default: {START_SEQ_NAME})'
-    )
-    
-    parser.add_argument(
-        '--end',
-        type=str,
-        default=END_SEQ_NAME,
-        help=f'Ending sequence name (default: {END_SEQ_NAME})'
-    )
-    
-    parser.add_argument(
-        '--seed',
-        type=int,
-        default=10,
-        help='Random seed for reproducibility (default: 10)'
-    )
-    
-    parser.add_argument(
-        '--n-iter',
-        type=int,
-        default=N_ITER,
-        help=f'Maximum number of iterations (default: {N_ITER})'
-    )
-    
-    parser.add_argument(
-        '--p-mask',
-        type=float,
-        default=P_MASK,
-        help=f'Maximum masking proportion (default: {P_MASK})'
-    )
-    
-    parser.add_argument(
-        '--context-msa',
-        type=str,
-        default=MSA_CONTEXT_FILE,
-        help='Path to context MSA file'
-    )
-    
-    parser.add_argument(
-        '--output-dir',
-        type=str,
-        default=GENERATOR_OUTPUT_PATH,
-        help='Output directory for results'
-    )
-    
-    args = parser.parse_args()
-    
+
+    # All configuration is taken from config/settings.py
+    full_context_file = FULL_CONTEXT_FILE
+    starting_seq_name = START_SEQ_NAME
+    ending_seq_name = END_SEQ_NAME
+    context_msa_file = MSA_CONTEXT_FILE
+    output_dir = GENERATOR_OUTPUT_PATH
+    random_seed = 10
+    n_iter = N_ITER
+    p_mask = P_MASK
+
     # Print experiment configuration
     print("\n" + "="*80)
     print("MUTATIONAL PATHWAY GENERATION.")
     print("="*80)
-    print(f"Starting sequence: {args.start}")
-    print(f"Ending sequence: {args.end}")
-    print(f"Random seed: {args.seed}")
-    print(f"Max iterations: {args.n_iter}")
-    print(f"Masking range: [{args.min_mask}, {args.max_mask}]")
-    print(f"Context MSA: {args.context_msa}")
-    print(f"Output directory: {args.output_dir}")
+    print(f"Starting sequence: {starting_seq_name}")
+    print(f"Ending sequence: {ending_seq_name}")
+    print(f"Random seed: {random_seed}")
+    print(f"Max iterations: {n_iter}")
+    print(f"Masking proportion: {p_mask}")
+    print(f"Context MSA: {context_msa_file}")
+    print(f"Output directory: {output_dir}")
     print("="*80 + "\n")
-    
+
     # Run evolution
     try:
         converged = iterative_sampling(
-            full_context_file=args.full_context_file,
-            starting_seq_name=args.start,
-            ending_seq_name=args.end,
-            context_msa_file=args.context_msa,
-            random_seed=args.seed,
-            n_iter=args.n_iter,
-            max_mask=args.max_mask,
-            min_mask=args.min_mask,
-            output_file_path=args.output_dir
+            full_context_file=full_context_file,
+            starting_seq_name=starting_seq_name,
+            ending_seq_name=ending_seq_name,
+            context_msa_file=context_msa_file,
+            random_seed=random_seed,
+            n_iter=n_iter,
+            p_mask=p_mask,
+            output_file_path=output_dir
         )
         
         if converged:
