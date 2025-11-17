@@ -49,10 +49,6 @@ ENV/
 logs/
 wandb/
 
-# Results and outputs
-results/
-output_data/
-plots_for_paper/
 
 # Temporary files
 *.tmp
