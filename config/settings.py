@@ -21,7 +21,7 @@ GENERATOR_METHOD = 'irs'  # Options: 'irs' (Independent Residue Sampling),
 # =============================================================================
 
 # Root path - adjust based on your environment
-ROOT_PATH = f"/protmixy/"
+ROOT_PATH = f"."
 
 # Data paths
 MAIN_DATA_PATH        = f"{ROOT_PATH}/data/"
