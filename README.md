@@ -108,7 +108,7 @@ All configuration is controlled via `config/settings.py`.
 - **INPUT_FILE_PATH**: Input file directory
 - **OUTPUT_FILE_PATH**: Output file directory
 
-#### To run for different source and target protein sequences
+## Running for your own source and target protein sequences
 
 Edit `config/settings.py`:
 - Set `START_SEQ_NAME` and `END_SEQ_NAME` to sequence IDs present in `FULL_CONTEXT_FILE`.
