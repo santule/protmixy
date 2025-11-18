@@ -28,15 +28,13 @@ MAIN_DATA_PATH        = f"{ROOT_PATH}/data/"
 INPUT_FILE_PATH       = f"{MAIN_DATA_PATH}input_data/"
 OUTPUT_FILE_PATH      = f"{MAIN_DATA_PATH}output_data/"
 
-# Input Information
-FULL_CONTEXT_FILE     = f'{INPUT_FILE_PATH}full_context.aln'
-
 # Sequence identifiers - should be present in FULL_CONTEXT_FILE
 START_SEQ_NAME        = 'tr|A0A7Z9ZYA4|A0A7Z9ZYA4_9BACT'
 END_SEQ_NAME          = 'tr|A0A832BM14|A0A832BM14_9PROT'
 
 PAIR_OUTPUT_FILE_PATH = f"{OUTPUT_FILE_PATH}{START_SEQ_NAME}_{END_SEQ_NAME}/"
 GENERATOR_OUTPUT_PATH = f"{PAIR_OUTPUT_FILE_PATH}{GENERATOR_METHOD}/"
+FULL_CONTEXT_FILE     = f'{PAIR_OUTPUT_FILE_PATH}full_context.aln'
 MSA_CONTEXT_FILE      = f'{PAIR_OUTPUT_FILE_PATH}cond_context.aln'
 
 # Create output directory if it doesn't exist

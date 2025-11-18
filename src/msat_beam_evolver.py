@@ -62,7 +62,6 @@ def iterative_sampling(full_context_file, starting_seq_name, ending_seq_name, co
     # Add starting sequence to the MSA
     msa_data, total_seqs, size_align_seq = create_msa_for_iterative_sampling(context_msa_file, starting_seq)
     print(f"Total sequences in MSA {total_seqs} and size of alignment {size_align_seq}")
-    logger.info(f"Total sequences in MSA {total_seqs} and size of alignment {size_align_seq}")
 
     # for iterating
     msa_batch_labels, msa_batch_strs, msa_batch_tokens = msa_batch_converter(msa_data)
@@ -96,15 +95,12 @@ def iterative_sampling(full_context_file, starting_seq_name, ending_seq_name, co
 
     # stop tolerance
     stop_tol = STOP_TOL_FACTOR * total_dist_to_target
-    print(f" 📊 Distance target is {total_dist_to_target} and stop tolerance set to {stop_tol}.")
-    logger.info(f" 📊 Distance target is {total_dist_to_target} and stop tolerance set to {stop_tol}.")
+    print(f" 📊 Cosine distance to target is {total_dist_to_target} and stop tolerance is set to {stop_tol}.")
 
     # Main iterative search loop
     for it in tqdm(range(1, n_iter), desc="Processing", unit="step"): 
         print(f"🏹 Starting Iteration: {it}.")
         print(f"🏹 Number of exit candidates so far: {num_exit_candidates}")
-        logger.info(f"🏹 Starting Iteration: {it}.")
-        logger.info(f"🏹 Number of exit candidates so far: {num_exit_candidates}")
 
         this_iteration_candidates = []
         for beam_idx, current_state in enumerate(current_beam): # 3 beams
@@ -120,9 +116,7 @@ def iterative_sampling(full_context_file, starting_seq_name, ending_seq_name, co
             current_aa_dist_source       = current_state['aa_dist_source']
 
             print(f"🔦 Beam {beam_idx} with id: {current_state_id} and score {current_score} ")
-            logger.info(f"Beam {beam_idx} with id: {current_state_id} and score {current_score}")
-            print(f"🔦 AA distance target {current_aa_dist_target} and source {current_aa_dist_source}")
-            logger.info(f"AA distance target {current_aa_dist_target} and source {current_aa_dist_source}")
+            print(f"🔦 AA distance to target {current_aa_dist_target} and source {current_aa_dist_source}")
         
             if GENERATOR_METHOD == 'apc':
                 msa_batch_tokens[0, 0, :] = current_sequence_token
@@ -136,7 +130,7 @@ def iterative_sampling(full_context_file, starting_seq_name, ending_seq_name, co
 
                 # generate mask
                 mask, num_pos_mask = generate_pathway_mask(it, size_align_seq, \
-                    current_pos_wise_dist_to_tgt, current_pos_entropy, current_tgt_pos_diff_aa, apc_avg_row_attn, p_mask)
+                    current_pos_wise_dist_to_tgt, current_pos_entropy, current_tgt_pos_diff_aa, apc_avg_row_attn)
 
                 msa_batch_tokens[0, 0, :], target_pos_change = mask_sequence(current_sequence_token, mask)
 
@@ -179,7 +173,6 @@ def iterative_sampling(full_context_file, starting_seq_name, ending_seq_name, co
                         'status': 'temporary'
                          }
                     #print(f" 🌱 Candidate {candidate_idx} generated with score {cand_score}.")
-                    logger.debug(f"Candidate {candidate_idx} generated with score {cand_score}.")
                     # check if candidate can exit the beam else add candidate to this iteration
                     if cand_score <= stop_tol:
                         candidate_state['converged'] = True
@@ -187,7 +180,6 @@ def iterative_sampling(full_context_file, starting_seq_name, ending_seq_name, co
                         path_history.append(candidate_state)
                         num_exit_candidates += 1
                         print(f" 🎉 Candidate {candidate_idx} converged with score {cand_score}.")
-                        logger.info(f"Candidate {candidate_idx} converged with score {cand_score}.")
                     else:
                         this_beam_candidates.append(candidate_state)
 
@@ -199,7 +191,6 @@ def iterative_sampling(full_context_file, starting_seq_name, ending_seq_name, co
         print(f" 🏹 Current Iteration Finished. Total candidates = {len(this_iteration_candidates)}")
         if len(this_iteration_candidates) == 0:
             print(f" 🚨 No more candidates left to process. Exiting.")
-            logger.info(f"No more candidates left to process. Exiting.")
             break
 
         # use the log likelihood to accept the top N_BEAM candidates
@@ -208,7 +199,6 @@ def iterative_sampling(full_context_file, starting_seq_name, ending_seq_name, co
         # Print which candidates were selected for the next beam
         selected_ids = [candidate['id'] for candidate in current_beam]
         print(f" 🔷 New Beam Size = {len(current_beam)} and selected candidates are {selected_ids}")
-        logger.info(f"New Beam Size = {len(current_beam)} and selected candidates are {selected_ids}")
 
         # add the current beam to the path history and make their status as ACCEPT
         for candidate in current_beam:
@@ -220,7 +210,6 @@ def iterative_sampling(full_context_file, starting_seq_name, ending_seq_name, co
 
     final_it = it + 1
     print(f" 🏹 Final Iteration Finished. Total candidates = {len(path_history) - 1}")
-    logger.info(f"Final Iteration Finished. Total candidates = {len(path_history) - 1}")
     converged_status = num_exit_candidates > 0
     path_history.append({
         'id': final_it,
@@ -246,7 +235,6 @@ def iterative_sampling(full_context_file, starting_seq_name, ending_seq_name, co
     with open(f"{output_file_path}beam_evol_msat_history_{random_seed}.pkl", "wb") as f:
         pickle.dump(path_history, f)
     print(f"✅ Beam history and exit candidates saved to {output_file_path}beam_evol_msat_history_{random_seed}.pkl")
-    logger.info(f"Beam history and exit candidates saved to {output_file_path}beam_evol_msat_history_{random_seed}.pkl")
 
     # lets get all intermediate sequences and write to fasta file
     intermediate_sequences = [path for path in path_history if path['status'] == 'ACCEPT']
@@ -254,21 +242,17 @@ def iterative_sampling(full_context_file, starting_seq_name, ending_seq_name, co
         for path in intermediate_sequences:
             f.write(f">{path['name']}\n{path['sequence']}\n")
     print(f"✅ Intermediate sequences saved to {output_file_path}beam_evol_msat_intermediate_seqs_{random_seed}.fasta")
-    logger.info(f"Intermediate sequences saved to {output_file_path}beam_evol_msat_intermediate_seqs_{random_seed}.fasta")
 
     # lets assemble paths if there is atleast one
     if converged_status:
         assemble_paths(path_history, output_file_path, random_seed)
-        print(f"✅ Evolution paths are finished and written to the folder {output_file_path}")
-        logger.info(f"Evolution paths are finished and written to the folder {output_file_path}")
+        print(f"✅ Mutational paths are finished and written to the folder {output_file_path}")
     else:
-        print(f"❌ No evolution paths found. No paths assembled.")
-        logger.info(f"No evolution paths found. No paths assembled.")
+        print(f"❌ No mutational paths found. No paths assembled.")
     
     # Perform consistency validation after all files are created
     validation_results = validate_path_consistency(path_history, output_file_path, random_seed)
     print(f"✅ Consistency validation completed: {validation_results}")
-    logger.info(f"Consistency validation completed: {validation_results}")
     
     return converged_status
 

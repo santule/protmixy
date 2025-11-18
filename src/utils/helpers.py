@@ -1,7 +1,7 @@
 """
 Helper functions and utilities for pathway generation.
 """
-import torch
+import torch, string
 import heapq
 import numpy as np
 import tempfile
@@ -17,6 +17,12 @@ from src.utils.evaluator import PathwayEvaluator
 from src.utils.model_loader import ModelLoader
 from config.settings import DEVICE, MASK_ID, DISTANCE_TEMP, \
     ENTROPY_THRESHOLD_FILTER, GENERATOR_METHOD, N_CANDIDATES, P_MASK
+
+
+deletekeys = dict.fromkeys(string.ascii_lowercase)
+deletekeys["."] = None
+deletekeys["*"] = None
+translation = str.maketrans(deletekeys)
 
 # load the generator + alphabet
 msa_transformer, msa_alphabet = ModelLoader.get_model()
@@ -321,17 +327,17 @@ def get_sampled_positions_cpos(current_pos_wise_dist_to_tgt, num_pos_mask, curre
     Returns:
         numpy.ndarray: Sampled positions to mask
     """
-    logger.info(f"Number of positions to mask: {num_pos_mask}")
+    print(f"Number of positions to mask: {num_pos_mask}")
     # Convert distances to probabilities for sampling
     pos_sample_probabilities = distance_to_probabilities(current_pos_wise_dist_to_tgt, current_pos_entropy, current_tgt_pos_diff)
         
     # Get indices of non-zero probabilities
     nonzero_indices = np.flatnonzero(pos_sample_probabilities)
-    logger.info(f"Number of positions with non-zero probability: {len(nonzero_indices)}")
+    print(f"Number of positions with non-zero probability: {len(nonzero_indices)}")
         
     # Adjust number of positions to mask if needed
     num_pos_mask = min(num_pos_mask, len(nonzero_indices))
-    logger.info(f"Adjusted number of positions to mask: {num_pos_mask}")
+    print(f"Adjusted number of positions to mask: {num_pos_mask}")
         
     # Sample positions based on probabilities
     all_positions = np.random.choice(
@@ -474,7 +480,7 @@ def accept_or_reject_beam_candidates(beam_candidates, current_state, t, it):
     random_toss = random.random()
     
     for cand in sorted_candidates:
-        logger.info(f" 📊 Candidate {cand['id']} has score {cand['score']} and delta score {cand['score'] - current_state['score']}")
+        print(f" 📊 Candidate {cand['id']} has score {cand['score']} and delta score {cand['score'] - current_state['score']}")
         delta_score = cand['score'] - current_state['score']
         if delta_score <= 0:
             acceptance_probability = 1.0
@@ -485,14 +491,14 @@ def accept_or_reject_beam_candidates(beam_candidates, current_state, t, it):
 
         if random_toss < acceptance_probability:
             accepted_candidates.append(cand)
-            logger.info(f"Accepted candidate {cand['id']} with score {cand['score']} (p={acceptance_probability:.4f})")
+            print(f"Accepted candidate {cand['id']} with score {cand['score']} (p={acceptance_probability:.4f})")
         else:
-            logger.info(f"Rejected candidate {cand['id']} with score {cand['score']} (p={acceptance_probability:.4f})")
+            print(f"Rejected candidate {cand['id']} with score {cand['score']} (p={acceptance_probability:.4f})")
             pass
 
     # If no candidates were accepted, return the current state to prevent the beam from dying.
     if not accepted_candidates:
-        logger.info(f"No new candidates accepted for this beam. Repeating current state.")
+        print(f"No new candidates accepted for this beam. Repeating current state.")
         return [current_state]
 
     return accepted_candidates
@@ -596,9 +602,8 @@ def assemble_paths(path_history, output_file_path, random_seed):
             if end_sequence:
                 f.write(f">{end_sequence['name']}_END\n{end_sequence['sequence']}\n")
         
-        logger.info(f"✅ Path {path_idx} saved to {fasta_filename}")
     
-    logger.info(f"🎯 Total of {len(complete_paths)} complete evolutionary paths assembled")
+    print(f"🎯 Total of {len(complete_paths)} complete mutational paths assembled")
 
 def validate_path_consistency(path_history, output_file_path, random_seed):
     """

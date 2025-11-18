@@ -1,34 +1,31 @@
 # ProtMixy: Mutational Pathway via MSA-Transformer to Generate Hybrid Protein Sequences
 
-A computational framework for generating biologically plausible mutational pathways between protein sequences, enabling the design of hybrid proteins through MSA-Transformer-guided sequence space exploration.
+A computational framework for generating mutational pathways between protein sequences, enabling the design of hybrid proteins through MSA-Transformer-guided sequence space exploration.
 
 ## Overview
 
-ProtMixy generates step-by-step mutational pathways that connect two protein sequences, producing hybrid intermediates that maintain biological plausibility. The framework leverages MSA-Transformer's understanding of sequence context and co-evolutionary patterns to guide mutations.
+ProtMixy generates step-by-step mutational pathways that connect two protein sequences, producing hybrid intermediates that is informed my the model. The framework leverages MSA-Transformer's understanding of sequence context and co-evolutionary patterns to guide mutations.
 
 ### Two Pathway Generation Methods
 
-1. **IRS (Iterative Refinement Sampling)**: Position-independent sampling based on embedding distance
+1. **IRS (Independent Residue Sampling)**: Position-independent sampling based on embedding based cosine distance
    - Samples positions with high cosine distance to target
    - Prioritizes high-entropy positions for mutation
-   - Efficient for sequences with distributed differences
 
 2. **APC (Attention-based Positional Coupling)**: Co-evolutionary position sampling
-   - Uses MSA-Transformer attention weights to identify coupled positions
+   - Uses MSA-Transformer row attention to identify coupled positions
    - Samples spatially related positions together
-   - Captures epistatic interactions and structural constraints
    - Applies Average Product Correction (APC) to attention matrices
 
 Both methods employ beam search with simulated annealing to maintain multiple pathway candidates and ensure smooth transitions through sequence space.
 
 ## Key Features
 
-- **Hybrid Protein Design**: Generate intermediate sequences between any two proteins
-- **Biologically Plausible Pathways**: MSA context ensures mutations respect natural variation
+- **Hybrid Protein Design**: Generate intermediate sequences between two homologous proteins
 - **Beam Search**: Explores multiple pathway candidates simultaneously (default: 3 beams)
 - **Simulated Annealing**: Temperature-based acceptance for smooth sequence transitions
-- **Co-evolutionary Awareness**: APC method captures epistatic interactions
-- **Convergence Tracking**: Monitors embedding distance and stops when target is reached
+- **Co-evolutionary Awareness**: APC based masking leverages MSA-Transformer row attention
+- **Convergence Tracking**: Monitors cosine distance and stops when 75% of total distance between source and target is reached
 - **Path Validation**: Comprehensive consistency checks on generated pathways
 
 ## Installation
@@ -37,13 +34,13 @@ Both methods employ beam search with simulated annealing to maintain multiple pa
 
 - Python 3.8+
 - CUDA-capable GPU (recommended) or CPU
-- 16GB+ RAM recommended
+- 24GB+ RAM recommended
 
 ### Setup
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/santule/protmixy.git
 cd protmixy
 
 # Create virtual environment
@@ -86,22 +83,27 @@ All configuration is controlled via `config/settings.py`. Before running:
 
 - Set `START_SEQ_NAME` and `END_SEQ_NAME` to sequence IDs present in `FULL_CONTEXT_FILE`.
 - Ensure your input files exist:
-  - `MSA_CONTEXT_FILE` (default: `data/input_data/msa_context.aln`)
-  - `FULL_CONTEXT_FILE` (default: `data/input_data/full_context.aln`)
+  - `MSA_CONTEXT_FILE`  (default: `data/output_data/{START_SEQ_NAME}_{END_SEQ_NAME}/full_context.aln`)
+  - `FULL_CONTEXT_FILE` (default: `data/output_data/{START_SEQ_NAME}_{END_SEQ_NAME}/cond_context.aln`)
 - Adjust paths if needed:
   - `ROOT_PATH`, `MAIN_DATA_PATH`, `INPUT_FILE_PATH`, `OUTPUT_FILE_PATH`
-- Tune pathway generation hyperparameters:
+- Adjust pathway generation hyperparameters, if needed:
   - `GENERATOR_METHOD`, `N_ITER`, `P_MASK`, `N_BEAM`, `N_TOSS`, `N_CANDIDATES`, etc.
 
 ## Configuration
 
-Edit `config/settings.py` to customize:
+Edit `config/settings.py` to customize parameters:
 
-- **Protein family**: Set `PROTEIN_FAMILY` (e.g., 'lac', 'kari', 'pla2g2')
 - **Pathway method**: Choose `GENERATOR_METHOD` ('irs' or 'apc')
-- **Beam parameters**: Adjust `N_BEAM`, `N_TOSS`, `N_CANDIDATES`
-- **Annealing schedule**: Modify `ANNEAL_TEMP`, `TEMP_DECAY`
-- **Model selection**: Change `GENERATOR_MODEL_NAME`
+- **Beam parameters**: Adjust `N_BEAM`, `N_TOSS`, `N_CANDIDATES` to control how many pathway hypotheses are tracked, how aggressively low-scoring beams are pruned, and how many new candidates are sampled at each step. Higher values explore more but increase compute.
+- **Annealing schedule**: Modify `ANNEAL_TEMP`, `TEMP_DECAY` to tune how accepting the search is to worse moves early on and how quickly it becomes greedy. Slower decay (higher `TEMP_DECAY`) allows more exploration but may require more iterations to converge.
+
+Edit `config/settings.py` to run for different source and target protein sequences:
+- Set `START_SEQ_NAME` and `END_SEQ_NAME` to sequence IDs present in `FULL_CONTEXT_FILE`.
+- Create Folder `data/output_data/{START_SEQ_NAME}_{END_SEQ_NAME}`
+- Ensure your input files exist:
+  - `MSA_CONTEXT_FILE`  (default: `data/output_data/{START_SEQ_NAME}_{END_SEQ_NAME}/full_context.aln`)
+  - `FULL_CONTEXT_FILE` (default: `data/output_data/{START_SEQ_NAME}_{END_SEQ_NAME}/cond_context.aln`)
 
 ## Output Files
 
@@ -111,20 +113,6 @@ The pathway generation produces several output files:
 2. **`beam_evol_msat_intermediate_seqs_{seed}.fasta`**: All accepted hybrid intermediate sequences
 3. **`beam_evol_path_{idx}_{seed}.fasta`**: Individual mutational pathways (one per converged beam)
 
-## Methods
-
-### IRS (Iterative Refinement Sampling)
-
-- Samples positions based on cosine distance to target
-- Focuses on positions with high entropy and large distance
-- Independent position sampling
-
-### APC (Attention-based Positional Coupling)
-
-- Uses attention weights from MSA-Transformer
-- Samples spatially coupled positions
-- Captures co-evolutionary relationships
-- Applies Average Product Correction (APC) to attention matrices
 
 ## Algorithm Overview
 
@@ -155,11 +143,8 @@ The pathway generation produces several output files:
 ### Common Issues
 
 **Out of Memory (OOM)**
-- Reduce `N_BEAM`, `N_TOSS`, or `N_CANDIDATES`
-- Use smaller ESM2 model (e.g., 'esm2_t6_8M_UR50D')
 - Reduce MSA size
+- APC can be memory-intensive, consider using IRS instead
 
 **No Convergence**
-- Increase `N_ITER`
-- Adjust `STOP_TOL_FACTOR`
-- Check that start and end sequences are in MSA
+- Check the MSA conditioning context used for generating pathway

@@ -17,7 +17,7 @@ import os
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.protein_evolver import iterative_sampling
+from src.msat_beam_evolver import iterative_sampling
 from config.settings import (
     FULL_CONTEXT_FILE,
     MSA_CONTEXT_FILE, 
@@ -48,7 +48,7 @@ def main():
     print("="*80)
     print(f"Starting sequence: {starting_seq_name}")
     print(f"Ending sequence: {ending_seq_name}")
-    print(f"Random seed: {random_seed}")
+    print(f"Random seed: {random_seed}")     
     print(f"Max iterations: {n_iter}")
     print(f"Masking proportion: {p_mask}")
     print(f"Context MSA: {context_msa_file}")
