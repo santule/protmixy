@@ -79,26 +79,33 @@ protmixy/
 python generate_pathway.py
 ```
 
-All configuration is controlled via `config/settings.py`. Before running:
+### Configuration
+All configuration is controlled via `config/settings.py`.
 
-- Set `START_SEQ_NAME` and `END_SEQ_NAME` to sequence IDs present in `FULL_CONTEXT_FILE`.
-- Ensure your input files exist:
-  - `MSA_CONTEXT_FILE`  (default: `data/output_data/{START_SEQ_NAME}_{END_SEQ_NAME}/full_context.aln`)
-  - `FULL_CONTEXT_FILE` (default: `data/output_data/{START_SEQ_NAME}_{END_SEQ_NAME}/cond_context.aln`)
-- Adjust paths if needed:
-  - `ROOT_PATH`, `MAIN_DATA_PATH`, `INPUT_FILE_PATH`, `OUTPUT_FILE_PATH`
-- Adjust pathway generation hyperparameters, if needed:
-  - `GENERATOR_METHOD`, `N_ITER`, `P_MASK`, `N_BEAM`, `N_TOSS`, `N_CANDIDATES`, etc.
+- **GENERATOR_METHOD**: 'irs' or 'apc'
+- **N_ITER**: Maximum number of iterations
+- **P_MASK**: Proportion of sequence to mask
+- **DISTANCE_TEMP**: Temperature for probabilistic sampling (sharper distribution)
+- **ENTROPY_THRESHOLD_FILTER**: Percentile threshold for entropy filtering
+- **N_BEAM**: Number of beams to maintain
+- **N_TOSS**: Number of sampling attempts per beam
+- **N_CANDIDATES**: Number of top-k candidates to generate per toss
+- **ANNEAL_TEMP**: Initial temperature for simulated annealing
+- **TEMP_DECAY**: Temperature decay factor
+- **ANNEAL_TEMP_MIN**: Minimum temperature for simulated annealing
+- **STOP_TOL_FACTOR**: Stopping tolerance as fraction of initial distance
+- **START_SEQ_NAME**: Sequence ID of the source sequence
+- **END_SEQ_NAME**: Sequence ID of the target sequence
+- **FULL_CONTEXT_FILE**: Path to the full MSA for the protein family
+- **MSA_CONTEXT_FILE**: Path to the conditioning context file to generate mutational pathway
+- **ROOT_PATH**: Root path for data and output files
+- **MAIN_DATA_PATH**: Main data directory
+- **INPUT_FILE_PATH**: Input file directory
+- **OUTPUT_FILE_PATH**: Output file directory
 
-## Configuration
+### To run for different source and target protein sequences
 
-Edit `config/settings.py` to customize parameters:
-
-- **Pathway method**: Choose `GENERATOR_METHOD` ('irs' or 'apc')
-- **Beam parameters**: Adjust `N_BEAM`, `N_TOSS`, `N_CANDIDATES` to control how many pathway hypotheses are tracked, how aggressively low-scoring beams are pruned, and how many new candidates are sampled at each step. Higher values explore more but increase compute.
-- **Annealing schedule**: Modify `ANNEAL_TEMP`, `TEMP_DECAY` to tune how accepting the search is to worse moves early on and how quickly it becomes greedy. Slower decay (higher `TEMP_DECAY`) allows more exploration but may require more iterations to converge.
-
-Edit `config/settings.py` to run for different source and target protein sequences:
+Edit `config/settings.py`:
 - Set `START_SEQ_NAME` and `END_SEQ_NAME` to sequence IDs present in `FULL_CONTEXT_FILE`.
 - Create Folder `data/output_data/{START_SEQ_NAME}_{END_SEQ_NAME}`
 - Ensure your input files exist:
@@ -106,7 +113,6 @@ Edit `config/settings.py` to run for different source and target protein sequenc
   - `FULL_CONTEXT_FILE` (default: `data/output_data/{START_SEQ_NAME}_{END_SEQ_NAME}/cond_context.aln`)
 
 ## Output Files
-
 The pathway generation produces several output files:
 
 1. **`beam_evol_msat_history_{seed}.pkl`**: Complete pathway history with all candidates and metadata
