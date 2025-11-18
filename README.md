@@ -27,14 +27,15 @@ Both methods employ beam search with simulated annealing to maintain multiple pa
 - **Co-evolutionary Awareness**: APC based masking leverages MSA-Transformer row attention
 - **Convergence Tracking**: Monitors cosine distance and stops when 75% of total distance between source and target is reached
 - **Path Validation**: Comprehensive consistency checks on generated pathways
+- **Hybrid Scoring**: Calculate hybrid score for each intermediate sequence
 
 ## Installation
 
 ### Requirements
 
 - Python 3.8+
-- CUDA-capable GPU (recommended) or CPU
-- 24GB+ RAM recommended
+- CUDA-capable GPU
+- 24GB+ RAM
 
 ### Setup
 
@@ -49,26 +50,6 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
-```
-
-## Project Structure
-
-```
-protmixy/
-├── config/              # Configuration files
-│   └── settings.py      # Hyperparameters and paths
-├── src/                 # Core source code
-│   ├── msat_beam_evolver.py  # Main pathway generation algorithm
-│   └── utils/                # Utility modules
-│       ├── model_loader.py   # MSA-Transformer model loader
-│       ├── evaluator.py      # Sequence evaluation
-│       ├── helpers.py        # Pathway generation utilities
-│       └── msa_output.py     # MSA processing
-├── data/                # Data directory (MSA files, sequences)
-├── docs/                # Documentation
-├── generate_pathway.py  # Main entry point script
-├── requirements.txt     # Python dependencies
-└── README.md           # This file
 ```
 
 ## Usage
@@ -127,7 +108,7 @@ All configuration is controlled via `config/settings.py`.
 - **INPUT_FILE_PATH**: Input file directory
 - **OUTPUT_FILE_PATH**: Output file directory
 
-##### To run for different source and target protein sequences
+#### To run for different source and target protein sequences
 
 Edit `config/settings.py`:
 - Set `START_SEQ_NAME` and `END_SEQ_NAME` to sequence IDs present in `FULL_CONTEXT_FILE`.
@@ -151,7 +132,7 @@ Edit `config/settings.py`:
    - Check convergence (embedding distance to target < threshold)
 3. **Pathway Assembly**: Trace back converged beams to construct complete mutational pathways
 
-### PART 2 - SCORING PATHWAYS
+### PART 2 - SCORING INTERMEDIATE GENERATED SEQUENCES
 
 1. **Sequence Similarity**: Sequence Identity between each intermediate sequence to the start and end sequences
 2. **Structure Similarity**: TM-score between each intermediate structure to the start and end structures
