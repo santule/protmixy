@@ -25,7 +25,8 @@ from config.settings import (
     N_ITER,
     P_MASK,
     START_SEQ_NAME,
-    END_SEQ_NAME
+    END_SEQ_NAME,
+    RANDOM_SEED
 )
 
 
@@ -38,7 +39,7 @@ def main():
     ending_seq_name = END_SEQ_NAME
     context_msa_file = MSA_CONTEXT_FILE
     output_dir = GENERATOR_OUTPUT_PATH
-    random_seed = 10
+    random_seed = RANDOM_SEED
     n_iter = N_ITER
     p_mask = P_MASK
 

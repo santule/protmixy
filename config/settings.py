@@ -51,6 +51,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # =============================================================================
 # PATHWAY GENERATION HYPERPARAMETERS
 # =============================================================================
+RANDOM_SEED = 10
 
 # Simulated annealing parameters
 ANNEAL_TEMP = 1.0

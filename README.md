@@ -75,11 +75,35 @@ protmixy/
 
 ### Basic Usage
 
+#### PART 1 - GENERATING PATHWAYS
+
+##### Running the script
 ```bash
 python generate_pathway.py
 ```
 
-### Configuration
+##### Output Files
+The pathway generation produces several output files:
+
+1. **`beam_evol_msat_history_{seed}.pkl`**: Complete pathway history with all candidates and metadata
+2. **`beam_evol_msat_intermediate_seqs_{seed}.fasta`**: All accepted hybrid intermediate sequences
+3. **`beam_evol_path_{idx}_{seed}.fasta`**: Individual mutational pathways (one per converged beam)
+
+
+#### PART 2 - SCORING PATHWAYS
+
+##### Running the script
+```bash
+python score_hybrids.py
+```
+
+##### Output Files
+The pathway scoring produces several output files:
+
+1. **`hybrid_scores_{seed}.csv`**: Hybrid scores for all intermediate sequences
+2. **`hybrid_scores_{seed}.png`**: Hybrid score scatter plot
+
+##### Configuration
 All configuration is controlled via `config/settings.py`.
 
 - **GENERATOR_METHOD**: 'irs' or 'apc'
@@ -103,7 +127,7 @@ All configuration is controlled via `config/settings.py`.
 - **INPUT_FILE_PATH**: Input file directory
 - **OUTPUT_FILE_PATH**: Output file directory
 
-### To run for different source and target protein sequences
+##### To run for different source and target protein sequences
 
 Edit `config/settings.py`:
 - Set `START_SEQ_NAME` and `END_SEQ_NAME` to sequence IDs present in `FULL_CONTEXT_FILE`.
@@ -112,15 +136,9 @@ Edit `config/settings.py`:
   - `MSA_CONTEXT_FILE`  (default: `data/output_data/{START_SEQ_NAME}_{END_SEQ_NAME}/full_context.aln`)
   - `FULL_CONTEXT_FILE` (default: `data/output_data/{START_SEQ_NAME}_{END_SEQ_NAME}/cond_context.aln`)
 
-## Output Files
-The pathway generation produces several output files:
-
-1. **`beam_evol_msat_history_{seed}.pkl`**: Complete pathway history with all candidates and metadata
-2. **`beam_evol_msat_intermediate_seqs_{seed}.fasta`**: All accepted hybrid intermediate sequences
-3. **`beam_evol_path_{idx}_{seed}.fasta`**: Individual mutational pathways (one per converged beam)
-
-
 ## Algorithm Overview
+
+### PART 1 - GENERATING PATHWAYS
 
 1. **Initialization**: Start with source sequence in MSA context
 2. **Iterative Pathway Generation**:
@@ -132,6 +150,13 @@ The pathway generation produces several output files:
    - Select top candidates based on log-likelihood
    - Check convergence (embedding distance to target < threshold)
 3. **Pathway Assembly**: Trace back converged beams to construct complete mutational pathways
+
+### PART 2 - SCORING PATHWAYS
+
+1. **Sequence Similarity**: Sequence Identity between each intermediate sequence to the start and end sequences
+2. **Structure Similarity**: TM-score between each intermediate structure to the start and end structures
+3. **Hybrid Score Calculation**: Calculate hybrid score for each intermediate sequence
+
 
 ## Dependencies
 
