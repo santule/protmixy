@@ -84,6 +84,20 @@ The pathway scoring produces several output files:
 1. **`hybrid_scores_{seed}.csv`**: Hybrid scores for all intermediate sequences
 2. **`hybrid_scores_{seed}.png`**: Hybrid score scatter plot
 
+##### PART 3 - PROFILE INTERMEDIATE GENERATED SEQUENCES
+
+##### Running the script
+```bash
+python sae_profile_hybrids.py
+```
+
+##### Output Files
+The pathway profiling produces several output files:
+
+1. **`hybrid_sae_profile_boxplot_{seed}.png`**: Hybrid SAE profile boxplot
+2. **`hybrid_sae_profile_scatterplot_{seed}.png`**: Hybrid SAE profile scatterplot
+
+
 ## Configuration
 All configuration is controlled via `config/settings.py`.
 
@@ -137,6 +151,13 @@ Edit `config/settings.py`:
 1. **Sequence Similarity**: Sequence Identity between each intermediate sequence to the start and end sequences
 2. **Structure Similarity**: TM-score between each intermediate structure to the start and end structures
 3. **Hybrid Score Calculation**: Calculate hybrid score for each intermediate sequence
+
+### PART 3 - PROFILE INTERMEDIATE GENERATED SEQUENCES
+
+1. **SAE Profile**: SAE profile of each intermediate sequence
+Out of top 500 activating latent for source and target sequence, find the top 5 common feature (present in both source and target), top 5 unique feature -source_only (present in source but not in target) and top 5 unique feature -target_only (present in target but not in source) and calculate the percentage change to the source sequence.
+2. **SAE Profile Boxplot**: Boxplot of SAE profile of each intermediate sequence with respect to source sequence for all 15 features (5 common, 5 source_only, 5 target_only)
+3. **SAE Profile Scatterplot**: Scatterplot of SAE profile of each intermediate sequence with respect to source sequence for mean source_only and target_only features
 
 
 ## Dependencies
