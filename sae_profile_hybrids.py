@@ -129,9 +129,8 @@ def select_features_to_track(top_a, top_b, avg_source_latent_feature, avg_target
     only_target = [y for y in top_b if y not in set_a][:top_n]
     return common_features, only_source, only_target
 
-def get_sae_profile(seq_a: str, seq_b: str):
-    avg_source_latent_feature = get_sae_latent_features(seq_a)
-    avg_target_latent_feature = get_sae_latent_features(seq_b)
+def get_sae_profile(avg_source_latent_feature: str, avg_target_latent_feature: str):
+    
 
     top_500_source_features = filter_sae_latent_features(avg_source_latent_feature)
     top_500_target_features = filter_sae_latent_features(avg_target_latent_feature)
@@ -142,7 +141,7 @@ def get_sae_profile(seq_a: str, seq_b: str):
 
 def calc_sae_profile() -> dict:
     # Load start and end sequences from the full MSA context
-    print(f"Starting hybrid score calculation.")
+    print(f"Starting SAE (sparse auto encoder) profile calculation.")
     global_fasta = FastaFile(FULL_CONTEXT_FILE)
     starting_aln_sequence = global_fasta.fetch(START_SEQ_NAME)
     ending_aln_sequence   = global_fasta.fetch(END_SEQ_NAME)
@@ -150,7 +149,13 @@ def calc_sae_profile() -> dict:
     starting_sequence_wo_gap = starting_aln_sequence.replace("-", "")
     ending_sequence_wo_gap   = ending_aln_sequence.replace("-", "")
 
-    common_features, source_only, target_only = get_sae_profile(starting_sequence_wo_gap, ending_sequence_wo_gap)
+    avg_source_latent_feature = get_sae_latent_features(starting_sequence_wo_gap)
+    avg_target_latent_feature = get_sae_latent_features(ending_sequence_wo_gap)
+    
+    common_features, source_only, target_only = get_sae_profile(avg_source_latent_feature, avg_target_latent_feature)
+    print(f"Common features: {common_features}")
+    print(f"Source only features: {source_only}")
+    print(f"Target only features: {target_only}")
 
     # get source and target values
     source_common_feature_value = list(avg_source_latent_feature[common_features])
@@ -161,7 +166,20 @@ def calc_sae_profile() -> dict:
     target_source_only_feature_value = list(avg_target_latent_feature[source_only])
     target_only_feature_value = list(avg_target_latent_feature[target_only])
 
+    target_common_change = (np.array(target_common_feature_value) - np.array(source_common_feature_value)) / np.array(source_common_feature_value) * 100.0
+    target_source_only_change = (np.array(target_source_only_feature_value) - np.array(source_only_feature_value)) / np.array(source_only_feature_value) * 100.0
+    target_target_only_change = (np.array(target_only_feature_value) - np.array(source_target_only_feature_value)) / np.array(source_target_only_feature_value) * 100.0
+
+    target_change_concat = np.concatenate(
+        [target_common_change, target_source_only_change, target_target_only_change]
+    )   
+
+    # Mean percent change values for the target sequence (for scatter plot reference)
+    target_avg_source_only = float(np.mean(target_source_only_change))
+    target_avg_target_only = float(np.mean(target_target_only_change))
+
     # Path to intermediate sequences produced by generate_pathway.py
+    print(f"Processing Intermediate sequences from file: {GENERATOR_OUTPUT_PATH}")
     intermediate_sequences_file = os.path.join(
         GENERATOR_OUTPUT_PATH,
         f"beam_evol_msat_intermediate_seqs_{RANDOM_SEED}.fasta",
@@ -198,33 +216,43 @@ def calc_sae_profile() -> dict:
         int_target_only_feature_value_change = (int_target_only_feature_value - source_target_only_feature_value) / source_target_only_feature_value
 
         intermediate_sequence_dict[int_seq_name] = {
-          "source_common_feature_value": source_common_feature_value,
-          "source_only_feature_value": source_only_feature_value,
-          "source_target_only_feature_value": source_target_only_feature_value,
+          "source_common_feature_value": source_common_feature_value.tolist(),
+          "source_only_feature_value": source_only_feature_value.tolist(),
+          "source_target_only_feature_value": source_target_only_feature_value.tolist(),
           
-          "target_common_feature_value": target_common_feature_value,
-          "target_source_only_feature_value": target_source_only_feature_value,
-          "target_only_feature_value": target_only_feature_value,
+          # target_* values are Python lists already; ensure list type without .tolist()
+          "target_common_feature_value": list(target_common_feature_value),
+          "target_source_only_feature_value": list(target_source_only_feature_value),
+          "target_only_feature_value": list(target_only_feature_value),
 
-          "int_common_feature_value": int_common_feature_value,
-          "int_source_only_feature_value": int_source_only_feature_value,
-          "int_target_only_feature_value": int_target_only_feature_value,
+          "int_common_feature_value": int_common_feature_value.tolist(),
+          "int_source_only_feature_value": int_source_only_feature_value.tolist(),
+          "int_target_only_feature_value": int_target_only_feature_value.tolist(),
 
-          "int_common_feature_value_change": int_common_feature_value_change * 100,
-          "int_source_only_feature_value_change": int_source_only_feature_value_change * 100,
-          "int_target_only_feature_value_change": int_target_only_feature_value_change * 100,
+          "int_common_feature_value_change": (int_common_feature_value_change * 100).tolist(),
+          "int_source_only_feature_value_change": (int_source_only_feature_value_change * 100).tolist(),
+          "int_target_only_feature_value_change": (int_target_only_feature_value_change * 100).tolist(),
 
         }
 
     # save
-    with open(os.path.join(GENERATOR_OUTPUT_PATH, f"hybrids_sae_profile_{RANDOM_SEED}.json"), "w") as f:
-        json.dump(intermediate_sequence_dict, f)
-    print(f"Hybrid score calculation completed.")
-    return intermediate_sequence_dict
+    out_json = os.path.join(GENERATOR_OUTPUT_PATH, f"hybrids_sae_profile_{RANDOM_SEED}.json")
+
+    def _json_default(o):
+        # Safely convert NumPy scalar types to native Python types
+        if isinstance(o, (np.floating,)):
+            return float(o)
+        return str(o)
+
+    with open(out_json, "w") as f:
+        json.dump(intermediate_sequence_dict, f, default=_json_default)
+
+    print(f"SAE profile calculation completed. Saved to {out_json}")
+    return intermediate_sequence_dict, target_change_concat, target_avg_source_only, target_avg_target_only
 
 def plot_sae_profile() -> None:
     """Scatter: min_seq_similarity (x) vs min_str_similarity (y), colored by hybrid_score."""
-    sae_profile = calc_sae_profile()
+    sae_profile, target_change_concat, target_avg_source_only, target_avg_target_only = calc_sae_profile()
 
     # Collect per-feature percentage changes across all intermediates
     common_changes = []   # shape: (n_intermediates, 5)
@@ -261,10 +289,25 @@ def plot_sae_profile() -> None:
         labels.append(f"T{i+1}")
 
     plt.figure(figsize=(12, 6))
-    plt.boxplot(boxplot_data, labels=labels, showfliers=False)
+    plt.boxplot(boxplot_data, tick_labels=labels, showfliers=False)
+
+    # Overlay red line segments showing where the target sequence sits for each feature
+    positions = np.arange(1, len(labels) + 1)
+    for idx, val in enumerate(target_change_concat):
+        plt.hlines(
+            y=val,
+            xmin=positions[idx] - 0.2,
+            xmax=positions[idx] + 0.2,
+            colors="red",
+            linestyles="--",
+            linewidth=1.2,
+            label="Target sequence" if idx == 0 else None,
+        )
+
     plt.ylabel("Percent change from source (%)")
     plt.xlabel("SAE feature (C: common, S: source-only, T: target-only)")
-    plt.title("Distribution of SAE feature percent changes across intermediates")
+    plt.title("Distribution of SAE latent feature percent changes across intermediates")
+    plt.legend()
     plt.tight_layout()
 
     out_path = os.path.join(
@@ -280,14 +323,26 @@ def plot_sae_profile() -> None:
     avg_target_only = np.mean(target_only_changes, axis=1)
 
     plt.figure(figsize=(6, 6))
-    plt.scatter(avg_source_only, avg_target_only, alpha=0.7)
+    # Intermediates
+    plt.scatter(avg_source_only, avg_target_only, alpha=0.7, label="Intermediates")
+    # Target sequence reference point
+    plt.scatter(
+        target_avg_source_only,
+        target_avg_target_only,
+        color="red",
+        marker="*",
+        s=120,
+        label="Target sequence",
+        zorder=3,
+    )
     # Optional reference line y = x
-    min_val = min(avg_source_only.min(), avg_target_only.min())
-    max_val = max(avg_source_only.max(), avg_target_only.max())
+    min_val = min(avg_source_only.min(), avg_target_only.min(), target_avg_source_only, target_avg_target_only)
+    max_val = max(avg_source_only.max(), avg_target_only.max(), target_avg_source_only, target_avg_target_only)
     plt.plot([min_val, max_val], [min_val, max_val], "k--", linewidth=1)
     plt.xlabel("Mean percent change of source-only features (%)")
     plt.ylabel("Mean percent change of target-only features (%)")
-    plt.title("Source-only vs target-only SAE feature change per intermediate")
+    plt.title("SAE latent feature percentage change per intermediate")
+    plt.legend()
     plt.tight_layout()
 
     out_path2 = os.path.join(
