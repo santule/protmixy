@@ -123,20 +123,27 @@ def get_tmscore(query_pdb_file, reference_pdb_file):
 
 def calc_hybrid_score() -> dict:
     # Load start and end sequences from the full MSA context
+    print(f"Starting hybrid score calculation.")
     global_fasta = FastaFile(FULL_CONTEXT_FILE)
     starting_aln_sequence = global_fasta.fetch(START_SEQ_NAME)
     ending_aln_sequence = global_fasta.fetch(END_SEQ_NAME)
 
     # structure prediction for start and end sequence
-    start_seq_pdb_file = struct_prediction(starting_aln_sequence, START_SEQ_NAME, GENERATOR_OUTPUT_PATH)
-    end_seq_pdb_file = struct_prediction(ending_aln_sequence, END_SEQ_NAME, GENERATOR_OUTPUT_PATH)
+    start_seq_pdb_file = os.path.join(GENERATOR_OUTPUT_PATH, f"pdbs/{START_SEQ_NAME}.pdb")
+    end_seq_pdb_file = os.path.join(GENERATOR_OUTPUT_PATH, f"pdbs/{END_SEQ_NAME}.pdb")
+
+    if not os.path.exists(start_seq_pdb_file):
+        start_seq_pdb_file = struct_prediction(starting_aln_sequence, START_SEQ_NAME, GENERATOR_OUTPUT_PATH)
+    if not os.path.exists(end_seq_pdb_file):
+        end_seq_pdb_file = struct_prediction(ending_aln_sequence, END_SEQ_NAME, GENERATOR_OUTPUT_PATH)
 
     seq_similarity_bt_start_end = sequence_identity(starting_aln_sequence, ending_aln_sequence)
     str_similarity_bt_start_end = get_tmscore(start_seq_pdb_file, end_seq_pdb_file)
 
     # weight for calculating hybrid score
-    str_wt = (1 - seq_similarity_bt_start_end) / ((1 - seq_similarity_bt_start_end) + (1 - str_similarity_bt_start_end))
+    str_wt = (1 - str_similarity_bt_start_end) / ((1 - seq_similarity_bt_start_end) + (1 - str_similarity_bt_start_end))
     seq_wt = 1 - str_wt
+    print(f"Sequence weight: {seq_wt} and Structure weight: {str_wt} for calculating hybrid score.")
 
     # Path to intermediate sequences produced by generate_pathway.py
     intermediate_sequences_file = os.path.join(
@@ -149,7 +156,6 @@ def calc_hybrid_score() -> dict:
         return
 
     intermediates_fa = FastaFile(intermediate_sequences_file)
-
     intermediate_sequence_dict: dict[str, dict] = {}
 
     for int_seq_name in intermediates_fa.references:
@@ -158,7 +164,9 @@ def calc_hybrid_score() -> dict:
         target_similarity = sequence_identity(int_aln_sequence, ending_aln_sequence)
 
         # predict structure
-        int_seq_pdb_file = struct_prediction(int_aln_sequence, int_seq_name, GENERATOR_OUTPUT_PATH)
+        int_seq_pdb_file = os.path.join(GENERATOR_OUTPUT_PATH, f"pdbs/{int_seq_name}.pdb")
+        if not os.path.exists(int_seq_pdb_file):
+            int_seq_pdb_file = struct_prediction(int_aln_sequence, int_seq_name, GENERATOR_OUTPUT_PATH)
 
         # get TM-score to start and end structures
         tmscore_int_start = get_tmscore(int_seq_pdb_file, start_seq_pdb_file)
@@ -181,23 +189,14 @@ def calc_hybrid_score() -> dict:
             "str_wt": str_wt,
             "hybrid_score": wt_hybrid_score,
         }
-
-    # Simple text summary
-    print("Intermediate hybrid scores:")
-    for name, scores in intermediate_sequence_dict.items():
-        print(
-            f"{name}\t"
-            f"min_seq_similarity={scores['min_seq_similarity']:.3f}\t"
-            f"min_str_similarity={scores['min_str_similarity']:.3f}\t"
-            f"hybrid_score={scores['hybrid_score']:.3f}"
-        )
-
+    print(f"Hybrid score calculation completed.")
     return intermediate_sequence_dict
 
 
 def plot_hybrid_score() -> None:
     """Scatter: min_seq_similarity (x) vs min_str_similarity (y), colored by hybrid_score."""
     scores = calc_hybrid_score()
+    print(f"Plotting hybrid score scatter plot.")
 
     x_vals = []
     y_vals = []
