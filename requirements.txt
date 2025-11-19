@@ -18,3 +18,7 @@ ete3>=3.1.2
 tmtools
 matplotlib
 transformers
+
+safetensors
+huggingface_hub
+git+https://github.com/etowahadams/interprot.git
