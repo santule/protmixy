@@ -84,7 +84,7 @@ The pathway scoring produces several output files:
 1. **`hybrid_scores_{seed}.csv`**: Hybrid scores for all intermediate sequences
 2. **`hybrid_scores_{seed}.png`**: Hybrid score scatter plot
 
-##### PART 3 - PROFILE INTERMEDIATE GENERATED SEQUENCES
+#### PART 3 - PROFILE INTERMEDIATE GENERATED SEQUENCES
 
 ##### Running the script
 ```bash
