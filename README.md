@@ -71,7 +71,7 @@ The pathway generation produces several output files:
 3. **`beam_evol_path_{idx}_{seed}.fasta`**: Individual mutational pathways (one per converged beam)
 
 
-#### PART 2 - SCORING PATHWAYS
+#### PART 2 - SCORING INTERMEDIATE GENERATED SEQUENCES
 
 ##### Running the script
 ```bash
@@ -84,7 +84,7 @@ The pathway scoring produces several output files:
 1. **`hybrid_scores_{seed}.csv`**: Hybrid scores for all intermediate sequences
 2. **`hybrid_scores_{seed}.png`**: Hybrid score scatter plot
 
-##### Configuration
+## Configuration
 All configuration is controlled via `config/settings.py`.
 
 - **GENERATOR_METHOD**: 'irs' or 'apc'
