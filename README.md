@@ -141,7 +141,7 @@ STEP 1 : Create conditioning context which provides a MSA of sequences that are 
 Edit `config/settings.py`:
 - Set `FULL_MSA_FILE` to path of the full MSA for the protein family.
 
-Run the script. The script uses KNN algorithm on MSA-Transformer embeddings to find dense clusters of sequences and select potential sequences chosen from the FULL_MSA_FILE for conditioning context. The cluster aggregated cosine distance is filtered based on the settings parameter `DENSE_SEED_THRESHOLD` and anything above this threshold is filtered out. Different sizes of K can be tried out to find the best conditioning context. If the MSA is large, it is recommended to use 48 / 80 GB of GPU memory.
+Run the below script. The script uses KNN algorithm on MSA-Transformer embeddings to find dense clusters of sequences and select potential sequences chosen from the FULL_MSA_FILE for conditioning context. The cluster aggregated cosine distance is filtered based on the settings parameter `DENSE_SEED_THRESHOLD` and anything above this threshold is filtered out. Different sizes of K can be tried out to find the best conditioning context. If the MSA is large, it is recommended to use 48 / 80 GB of GPU memory.
 
 ```bash
 python create_conditioning_context.py
