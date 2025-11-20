@@ -2,6 +2,7 @@
 torch>=1.10.0
 numpy>=1.21.0
 scipy>=1.7.0
+scikit-learn>=1.0.0
 
 # ESM (Evolutionary Scale Modeling) - MSA-Transformer
 fair-esm>=2.0.0

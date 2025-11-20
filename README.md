@@ -92,7 +92,7 @@ python sae_profile_hybrids.py
 ```
 
 ##### Output Files
-The pathway profiling produces several output files:
+The pathway profiling produces several output files in the folder `GENERATOR_OUTPUT_PATH`:
 
 1. **`hybrid_sae_profile_boxplot_{seed}.png`**: Hybrid SAE profile boxplot
 2. **`hybrid_sae_profile_scatterplot_{seed}.png`**: Hybrid SAE profile scatterplot
@@ -123,13 +123,44 @@ All configuration is controlled via `config/settings.py`.
 - **OUTPUT_FILE_PATH**: Output file directory
 
 ## Running for your own source and target protein sequences
+For running on your protein family with different source and target protein, we recommend the following steps:
+
+STEP 1 : Create conditioning context which provides a MSA of sequences that are similar to the target sequence. You need to provide a full MSA of the protein family in the `FULL_MSA_FILE`.
 
 Edit `config/settings.py`:
-- Set `START_SEQ_NAME` and `END_SEQ_NAME` to sequence IDs present in `FULL_CONTEXT_FILE`.
+- Set `FULL_MSA_FILE` to path of the full MSA for the protein family.
+
+Run the script. The script uses KNN algorithm on MSA-Transformer embeddings to find dense clusters of sequences and select potential sequences chosen from the FULL_MSA_FILE for conditioning context. The cluster aggregated cosine distance is filtered based on the settings parameter `DENSE_SEED_THRESHOLD` and anything above this threshold is filtered out. Different sizes of K can be tried out to find the best conditioning context.
+
+```bash
+python create_conditioning_context.py
+```
+
+##### Output Files
+
+All files are created in the `INPUT_FILE_PATH`
+1. **`conditioning_context_{nearest_label}.aln`**: Five different samples of conditioning context MSA (you can choose to create more if needed)
+2. **`full_context_embeddings.npz`**: Full MSA-Transformer embeddings for the `FULL_MSA_FILE` data
+3. **`potential_cond_context.json`**: Potential conditioning contexts with random source sequences at different identity to target sequence
+
+You can review the potention conditioning context in the `conditioning_context_{nearest_label}.aln` and the diffferent source sequences in the `potential_cond_context.json` file. The conditioning context can be manually curated or adjusted based on domain knowledge or any other sequence annotations available.
+
+STEP 2: Setup the configuration and folder structure so we can now run the pathway generation.
+
+Edit `config/settings.py`:
+- Set `START_SEQ_NAME` and `END_SEQ_NAME` from any of the suggested pairs in the `potential_cond_context.json` file.
 - Create Folder `data/output_data/{START_SEQ_NAME}_{END_SEQ_NAME}`
-- Ensure your input files exist:
+- Copy the `conditioning_context_{nearest_label}.aln` to the `data/output_data/{START_SEQ_NAME}_{END_SEQ_NAME}` folder. Rename it to `cond_context.aln`
+- Copy the `full_context.aln` to the `data/output_data/{START_SEQ_NAME}_{END_SEQ_NAME}` folder.
+- Ensure following files exist before running the code:
   - `MSA_CONTEXT_FILE`  (default: `data/output_data/{START_SEQ_NAME}_{END_SEQ_NAME}/full_context.aln`)
   - `FULL_CONTEXT_FILE` (default: `data/output_data/{START_SEQ_NAME}_{END_SEQ_NAME}/cond_context.aln`)
+
+Now you are ready to run the pathway generation.
+
+```bash
+python generate_pathway.py
+```
 
 ## Algorithm Overview
 

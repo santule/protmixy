@@ -36,6 +36,7 @@ PAIR_OUTPUT_FILE_PATH = f"{OUTPUT_FILE_PATH}{START_SEQ_NAME}_{END_SEQ_NAME}/"
 GENERATOR_OUTPUT_PATH = f"{PAIR_OUTPUT_FILE_PATH}{GENERATOR_METHOD}/"
 FULL_CONTEXT_FILE     = f'{PAIR_OUTPUT_FILE_PATH}full_context.aln'
 MSA_CONTEXT_FILE      = f'{PAIR_OUTPUT_FILE_PATH}cond_context.aln'
+FULL_MSA_FILE         = f'{INPUT_FILE_PATH}full_context.aln'
 
 # Create output directory if it doesn't exist
 os.makedirs(GENERATOR_OUTPUT_PATH, exist_ok=True)
@@ -70,6 +71,13 @@ STOP_TOL_FACTOR = 0.25  # Stopping tolerance as fraction of initial distance
 N_BEAM = 3  # Number of beams to maintain
 N_TOSS = 3  # Number of sampling attempts per beam
 N_CANDIDATES = 5  # Number of top-k candidates to generate per toss
+
+
+# =============================================================================
+# CONDITIONING CONTEXT GENERATION HYPERPARAMETERS
+# =============================================================================
+
+DENSE_SEED_THRESHOLD = 0.02
 
 # =============================================================================
 # CONFIGURATION SUMMARY
