@@ -57,6 +57,7 @@ pip install -r requirements.txt
 ### Basic Usage
 
 #### PART 1 - GENERATING PATHWAYS
+The pathway generation would use all the parameters set in the config/settings.py file. 
 
 ##### Running the script
 ```bash
@@ -72,6 +73,7 @@ The pathway generation produces several output files:
 
 
 #### PART 2 - SCORING INTERMEDIATE GENERATED SEQUENCES
+The second part is to score the intermediate sequences generated in the first part. This predicts structure using ESMFold and then uses TM-score to calculate the structure similarity. It also uses sequence identity to calculate the sequence similarity. Both information is used to calculate the weighted hybrid score. 
 
 ##### Running the script
 ```bash
@@ -85,6 +87,7 @@ The pathway scoring produces several output files:
 2. **`hybrid_scores_{seed}.png`**: Hybrid score scatter plot
 
 #### PART 3 - PROFILE INTERMEDIATE GENERATED SEQUENCES
+The third part is to profile the intermediate sequences generated in the first part. This uses Sparse AutoEncoder (SAE) InterProt to calculate the profile of the intermediate sequences.
 
 ##### Running the script
 ```bash
@@ -116,11 +119,14 @@ All configuration is controlled via `config/settings.py`.
 - **START_SEQ_NAME**: Sequence ID of the source sequence
 - **END_SEQ_NAME**: Sequence ID of the target sequence
 - **FULL_CONTEXT_FILE**: Path to the full MSA for the protein family
+- **FULL_MSA_FILE**: Path to the full MSA for the protein family
 - **MSA_CONTEXT_FILE**: Path to the conditioning context file to generate mutational pathway
 - **ROOT_PATH**: Root path for data and output files
 - **MAIN_DATA_PATH**: Main data directory
 - **INPUT_FILE_PATH**: Input file directory
 - **OUTPUT_FILE_PATH**: Output file directory
+- **GENERATOR_OUTPUT_PATH**: Output file directory for pathway generation
+- **DENSE_SEED_THRESHOLD**: Threshold for average cosine distance to filter dense clusters of sequences for creating conditioning context
 
 ## Running for your own source and target protein sequences
 For running on your protein family with different source and target protein, we recommend the following steps:
@@ -130,7 +136,7 @@ STEP 1 : Create conditioning context which provides a MSA of sequences that are 
 Edit `config/settings.py`:
 - Set `FULL_MSA_FILE` to path of the full MSA for the protein family.
 
-Run the script. The script uses KNN algorithm on MSA-Transformer embeddings to find dense clusters of sequences and select potential sequences chosen from the FULL_MSA_FILE for conditioning context. The cluster aggregated cosine distance is filtered based on the settings parameter `DENSE_SEED_THRESHOLD` and anything above this threshold is filtered out. Different sizes of K can be tried out to find the best conditioning context.
+Run the script. The script uses KNN algorithm on MSA-Transformer embeddings to find dense clusters of sequences and select potential sequences chosen from the FULL_MSA_FILE for conditioning context. The cluster aggregated cosine distance is filtered based on the settings parameter `DENSE_SEED_THRESHOLD` and anything above this threshold is filtered out. Different sizes of K can be tried out to find the best conditioning context. If the MSA is large, it is recommended to use 48 / 80 GB of GPU memory.
 
 ```bash
 python create_conditioning_context.py
