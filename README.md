@@ -1,7 +1,7 @@
 # ProtMixy: Generating Hybrid Proteins with the MSA-Transformer
 
 <p align="center">
-  <img src="result1_pca_plot_apc.png" alt="ProtMixy diagram" width="100">
+  <img src="hybridproteins.png" alt="ProtMixy diagram" width="100">
 </p>
 
 
