@@ -1,6 +1,9 @@
 # ProtMixy: Generating Hybrid Proteins with the MSA-Transformer
 
-![ProtMixy diagram](result1_pca_plot_apc.png)
+<p align="center">
+  <img src="result1_pca_plot_apc.png" alt="ProtMixy diagram" width="40">
+</p>
+
 
 A computational framework for generating mutational pathways between protein sequences, enabling the design of hybrid proteins through MSA-Transformer-guided sequence space exploration.
 
