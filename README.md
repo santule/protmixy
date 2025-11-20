@@ -136,6 +136,7 @@ All configuration is controlled via `config/settings.py`.
 ## Running for your own source and target protein sequences
 For running on your protein family with different source and target protein, we recommend the following steps:
 
+#### PART 4 - CONDITIONING CONTEXT GENERATION
 STEP 1 : Create conditioning context which provides a MSA of sequences that are similar to the target sequence. You need to provide a full MSA of the protein family in the `FULL_MSA_FILE`.
 
 Edit `config/settings.py`:
@@ -201,6 +202,13 @@ Out of top 500 activating latent for source and target sequence, find the top 5 
 2. **SAE Profile Boxplot**: Boxplot of SAE profile of each intermediate sequence with respect to source sequence for all 15 features (5 common, 5 source_only, 5 target_only)
 3. **SAE Profile Scatterplot**: Scatterplot of SAE profile of each intermediate sequence with respect to source sequence for mean source_only and target_only features
 
+### PART 4 - CONDITIONING CONTEXT GENERATION
+
+1. **Embedding Computation**: Compute MSA-Transformer embeddings for all sequences in the full MSA (`FULL_MSA_FILE`).
+2. **Neighbourhood Graph Construction**: Build a KNN graph in embedding space to capture local sequence neighbourhoods.
+3. **Dense Region Detection**: Identify dense clusters of sequences using KNN-based neighbourhood density.
+4. **Dense Seed Filtering**: Aggregate cosine distances within clusters and filter using the `DENSE_SEED_THRESHOLD` parameter to keep only well-supported dense seeds.
+5. **Conditioning Set Selection**: Select representative sequences from the remaining dense clusters as the conditioning context used for pathway generation.
 
 ## Dependencies
 
